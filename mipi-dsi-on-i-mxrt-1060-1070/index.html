@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <title>MIPI-DSI on i.MXRT 1060/1070</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <link rel="preload" as="style" href="/assets/built/screen.css?v=59760bab68" />
+    <link rel="preload" as="script" href="/assets/built/casper.js?v=59760bab68" />
+
+    <link rel="stylesheet" type="text/css" href="/assets/built/screen.css?v=59760bab68" />
+
+    <link rel="canonical" href="http://localhost:2368/mipi-dsi-on-i-mxrt-1060-1070/">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+    <meta property="og:site_name" content="Shekhar Verma">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="MIPI-DSI on i.MXRT 1060/1070">
+    <meta property="og:description" content="Hello everyone, this is going to be a 2 part series in which I am going to explain you about MIPI-DSI, how it works and how to use it on NXP i.MXRT1160/1170 crossover MCUs.
+
+
+
+What is MIPI-DSI?
+
+
+MIPI DSI (Mobile Industry Processor Interface Display Serial Interface) is a">
+    <meta property="og:url" content="http://localhost:2368/mipi-dsi-on-i-mxrt-1060-1070/">
+    <meta property="og:image" content="http://localhost:2368/content/images/2023/11/rear-view-programmer-working-all-night-long.jpg">
+    <meta property="article:published_time" content="2023-11-23T09:31:30.000Z">
+    <meta property="article:modified_time" content="2023-11-23T10:49:59.000Z">
+    <meta property="article:tag" content="MIPI-DSI">
+    <meta property="article:tag" content="i.MXRT">
+    <meta property="article:tag" content="LCD">
+    
+    <meta property="article:publisher" content="https://www.facebook.com/ghost">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="MIPI-DSI on i.MXRT 1060/1070">
+    <meta name="twitter:description" content="Hello everyone, this is going to be a 2 part series in which I am going to explain you about MIPI-DSI, how it works and how to use it on NXP i.MXRT1160/1170 crossover MCUs.
+
+
+
+What is MIPI-DSI?
+
+
+MIPI DSI (Mobile Industry Processor Interface Display Serial Interface) is a">
+    <meta name="twitter:url" content="http://localhost:2368/mipi-dsi-on-i-mxrt-1060-1070/">
+    <meta name="twitter:image" content="http://localhost:2368/content/images/2023/11/rear-view-programmer-working-all-night-long.jpg">
+    <meta name="twitter:label1" content="Written by">
+    <meta name="twitter:data1" content="Shekhar Verma">
+    <meta name="twitter:label2" content="Filed under">
+    <meta name="twitter:data2" content="MIPI-DSI, i.MXRT, LCD">
+    <meta name="twitter:site" content="@ghost">
+    <meta name="twitter:creator" content="@shekhu_verma">
+    <meta property="og:image:width" content="2000">
+    <meta property="og:image:height" content="1335">
+    
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "publisher": {
+        "@type": "Organization",
+        "name": "Shekhar Verma",
+        "url": "http://localhost:2368/",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "http://localhost:2368/favicon.ico"
+        }
+    },
+    "author": {
+        "@type": "Person",
+        "name": "Shekhar Verma",
+        "image": {
+            "@type": "ImageObject",
+            "url": "http://localhost:2368/content/images/2023/11/1679463984748.png",
+            "width": 400,
+            "height": 400
+        },
+        "url": "http://localhost:2368/author/shekhar/",
+        "sameAs": [
+            "https://twitter.com/shekhu_verma"
+        ]
+    },
+    "headline": "MIPI-DSI on i.MXRT 1060/1070",
+    "url": "http://localhost:2368/mipi-dsi-on-i-mxrt-1060-1070/",
+    "datePublished": "2023-11-23T09:31:30.000Z",
+    "dateModified": "2023-11-23T10:49:59.000Z",
+    "keywords": "MIPI-DSI, i.MXRT, LCD",
+    "description": "Hello everyone, this is going to be a 2 part series in which I am going to explain you about MIPI-DSI, how it works and how to use it on NXP i.MXRT1160/1170 crossover MCUs.\n\n\n\nWhat is MIPI-DSI?\n\n\nMIPI DSI (Mobile Industry Processor Interface Display Serial Interface) is a high-speed interface standard for connecting a display to a mobile device or embedded system. Developed by the MIPI Alliance (Formed by ARM, Nokia, ST and TI in 2003, Intel, Motorola, Samsung and Philips joined within a year), ",
+    "mainEntityOfPage": "http://localhost:2368/mipi-dsi-on-i-mxrt-1060-1070/"
+}
+    </script>
+
+    <meta name="generator" content="Ghost 5.74">
+    <link rel="alternate" type="application/rss+xml" title="Shekhar Verma" href="http://localhost:2368/rss/">
+    <script defer src="https://cdn.jsdelivr.net/ghost/portal@~2.36/umd/portal.min.js" data-i18n="false" data-ghost="http://localhost:2368/" data-key="faa7d54788c8c1c8975f4dd2b0" data-api="http://localhost:2368/ghost/api/content/" crossorigin="anonymous"></script><style id="gh-members-styles">.gh-post-upgrade-cta-content,
+.gh-post-upgrade-cta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    text-align: center;
+    width: 100%;
+    color: #ffffff;
+    font-size: 16px;
+}
+
+.gh-post-upgrade-cta-content {
+    border-radius: 8px;
+    padding: 40px 4vw;
+}
+
+.gh-post-upgrade-cta h2 {
+    color: #ffffff;
+    font-size: 28px;
+    letter-spacing: -0.2px;
+    margin: 0;
+    padding: 0;
+}
+
+.gh-post-upgrade-cta p {
+    margin: 20px 0 0;
+    padding: 0;
+}
+
+.gh-post-upgrade-cta small {
+    font-size: 16px;
+    letter-spacing: -0.2px;
+}
+
+.gh-post-upgrade-cta a {
+    color: #ffffff;
+    cursor: pointer;
+    font-weight: 500;
+    box-shadow: none;
+    text-decoration: underline;
+}
+
+.gh-post-upgrade-cta a:hover {
+    color: #ffffff;
+    opacity: 0.8;
+    box-shadow: none;
+    text-decoration: underline;
+}
+
+.gh-post-upgrade-cta a.gh-btn {
+    display: block;
+    background: #ffffff;
+    text-decoration: none;
+    margin: 28px 0 0;
+    padding: 8px 18px;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.gh-post-upgrade-cta a.gh-btn:hover {
+    opacity: 0.92;
+}</style>
+    <script defer src="https://cdn.jsdelivr.net/ghost/sodo-search@~1.1/umd/sodo-search.min.js" data-key="faa7d54788c8c1c8975f4dd2b0" data-styles="https://cdn.jsdelivr.net/ghost/sodo-search@~1.1/umd/main.css" data-sodo-search="http://localhost:2368/" crossorigin="anonymous"></script>
+    
+    <link href="http://localhost:2368/webmentions/receive/" rel="webmention">
+    <script defer src="/public/member-attribution.min.js?v=59760bab68"></script><style>:root {--ghost-accent-color: #878484;}</style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/themes/prism-tomorrow.min.css" integrity="sha512-vswe+cgvic/XBoF1OcM/TeJ2FW0OofqAVdCZiEYkd6dwGXthvkSFWOoGGJgS2CW70VK5dQM5Oh+7ne47s74VTg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+</head>
+<body class="post-template tag-mipi-dsi tag-i-mxrt tag-lcd tag-hash-import-2023-11-23-15-01 is-head-left-logo has-cover">
+<div class="viewport">
+
+    <header id="gh-head" class="gh-head outer">
+        <div class="gh-head-inner inner">
+            <div class="gh-head-brand">
+                <a class="gh-head-logo no-image" href="http://localhost:2368">
+                        Shekhar Verma
+                </a>
+                <button class="gh-search gh-icon-btn" aria-label="Search this site" data-ghost-search><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></button>
+                <button class="gh-burger"></button>
+            </div>
+
+            <nav class="gh-head-menu">
+                <ul class="nav">
+    <li class="nav-home"><a href="http://localhost:2368/">Home</a></li>
+    <li class="nav-about"><a href="http://localhost:2368/about/">About</a></li>
+</ul>
+
+            </nav>
+
+            <div class="gh-head-actions">
+                    <button class="gh-search gh-icon-btn" data-ghost-search><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></button>
+                    <div class="gh-head-members">
+                                <a class="gh-head-link" href="#/portal/signin" data-portal="signin">Sign in</a>
+                                <a class="gh-head-button" href="#/portal/signup" data-portal="signup">Subscribe</a>
+                    </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="site-content">
+        
+
+
+
+<main id="site-main" class="site-main">
+<article class="article post tag-mipi-dsi tag-i-mxrt tag-lcd tag-hash-import-2023-11-23-15-01 no-image ">
+
+    <header class="article-header gh-canvas">
+
+        <div class="article-tag post-card-tags">
+                <span class="post-card-primary-tag">
+                    <a href="/tag/mipi-dsi/">MIPI-DSI</a>
+                </span>
+        </div>
+
+        <h1 class="article-title">MIPI-DSI on i.MXRT 1060/1070</h1>
+
+
+        <div class="article-byline">
+        <section class="article-byline-content">
+
+            <ul class="author-list">
+                <li class="author-list-item">
+                    <a href="/author/shekhar/" class="author-avatar">
+                        <img class="author-profile-image" src="/content/images/size/w100/2023/11/1679463984748.png" alt="Shekhar Verma" />
+                    </a>
+                </li>
+            </ul>
+
+            <div class="article-byline-meta">
+                <h4 class="author-name"><a href="/author/shekhar/">Shekhar Verma</a></h4>
+                <div class="byline-meta-content">
+                    <time class="byline-meta-date" datetime="2023-11-23">Nov 23, 2023</time>
+                        <span class="byline-reading-time"><span class="bull">&bull;</span> 6 min read</span>
+                </div>
+            </div>
+
+        </section>
+        </div>
+
+
+    </header>
+
+    <section class="gh-content gh-canvas">
+        <p>Hello everyone, this is going to be a 2 part series in which I am going to explain you about MIPI-DSI, how it works and how to use it on NXP i.MXRT1160/1170 crossover MCUs.</p>
+<h2 id="what-is-mipi-dsi">What is MIPI-DSI?</h2>
+<p><strong>MIPI DSI</strong> (<strong>M</strong>obile <strong>I</strong>ndustry <strong>P</strong>rocessor <strong>I</strong>nterface <strong>D</strong>isplay <strong>S</strong>erial <strong>I</strong>nterface) is a high-speed interface standard for connecting a display to a mobile device or embedded system. Developed by the MIPI Alliance (Formed by ARM, Nokia, ST and TI in 2003, Intel, Motorola, Samsung and Philips joined within a year), a global organization dedicated to developing interface specifications for mobile and mobile-influenced industries. MIPI DSI is designed to support the display needs of smartphones, tablets, laptops, and other portable devices. DSI only specifies a set of commands, data serialisation and packetization schemes. This packet-based approach allows for a more efficient use of bandwidth and power, making it ideal for mobile applications. The use of MIPI DSI is not limited to mobile devices, it has also been adopted in embedded systems, such as Internet of Things (IoT) devices, automotive displays and industrial displays. It <strong>does not</strong> define any actual electrical specifications, physical layer or a connector standard (like HDMI and USB). The actual electrical specifications are defined by a PHY (short for physical layer). NXP i.MXRT 1160 uses D-PHY , here D stands for Roman numerical 500 and it denotes the maximum speed of 500 mbits/sec per lane. There are other types of PHYs as well such as C-PHY, A-PHY, etc.<br>
+Now that we have some idea about what is DSI, let’s discuss about what it’s not.</p>
+<ol>
+<li>It's not a plug and Play system like HDMI or USB. It requires a specific configuration and initialization sequence to operate.</li>
+<li>It's meant for short distance communication only as it was designed for portable and hand-held devices. Max length is only 25-30 Cm.</li>
+<li>It's is not designed to interface multiples devices at same time (Unlike SPI, I2C).</li>
+</ol>
+<h2 id="how-modern-displays-work">How Modern Displays work?</h2>
+<p>Before diving into how MIPI-DSI works we need to understand some basic terminology. All modern-day display signaling is inspired from the old day CRTs (:tv: yes those old beefy televisons). Most modern day displays uses the same raster scan technique to produce images on the screen. You can learn more about this <a href="https://www.youtube.com/watch?v=r38nVmxBfvM&ab_channel=DanaLee&ref=localhost">here</a>. This displayed image is often referred to as a Frame. Pixels are located relative to their time from the vertical and horizontal sync signals. The display process repeats itself for the next frame, and the next frame, etc… The film/video world define this timing interval at which a new frame is displayed is as Frames per Second (FPS).</p>
+<h3 id="basic-concepts">Basic concepts</h3>
+<p><strong>Horizontal Blanking Interval</strong> – When the electron beam is steered from left to right to start a new horizontal line is called horizontal retrace and the time it takes to do this process is called horizontal blanking interval.<br>
+It consists of 3 parts.</p>
+<pre><code>Horizontal Blanking Interval = Horizontal Front Poarch + Horizontal Sync Width + Horizontal Back Poarch
+</code></pre>
+<p><strong>Horizontal Front Poarch</strong> = Time it takes to switch of the electron beam and turn it around.<br>
+<strong>Horizontal Sync Width</strong> = Time it takes to Steer the electron beam from Left to right side.<br>
+<strong>Horizontal Back Poarch</strong> = Time it takes to stabilize the electron beam before starting up the new line.<br>
+Similarly, we have vertical blanking interval and we have,<br>
+<strong>Vertical Blanking Interval</strong> – When the electron beam is steered from bottom left to top right, i.e from the end line of the frame to first line of the next frame to start a new frame is called vertical retrace and the time it takes in this process is called vertical blanking interval.<br>
+It also consists of 3 parts.</p>
+<pre><code>Vertical Blanking Interval = Vertical Front Poarch + Vertical Sync Width + Vertical Back Poarch
+</code></pre>
+<p><strong>Pixel Clock</strong> is defined as</p>
+<pre><code>Pixel Clock = (Frame Height + Vertical Front Poarch + Vertical Sync Width + Vertical Back Poarch) x ( Frame Width Vertical Front Poarch + Vertical Sync Width + Vertical Back Poarch) x FPS.
+</code></pre>
+<p>so control a digital display we need at least 24 signal lanes(8 signal lane per channel for RGB),1 Hsync, 1 Vsync, 1 Pclk and 1 Data Enable, therefore a bare minimum of 28 signal lanes or pins for transmission of data. DSI takes all these parallel signals and converts them into a serialised packet data which can be sent at high speeds using only 6 lanes(2 for clk and 4 for 2 differential data pairs).It saves space on PCB and improves EMI/EMC characteristics of the product.<br>
+{{&lt; image src="image1.png" alt="Frame timings"&gt;}}</p>
+<h2 id="dsi-lanes">DSI Lanes</h2>
+<p>DSI takes RGB Parallel bus and serialize all the pixel data, commands and events into data packets. It uses DDR to transmit data, which means data is transmitted at both rising clock edge as well as falling clock edge<br>
+DSI used Differential pairs lanes to communicate between host and LCD.<br>
+We have CLOCK – Unidirectional Differential pair clock signal<br>
+DATA LANE 0 - Bidirectional Differential pair data lane.<br>
+DATA LANE n -Unidirectional Differential pair data lane (From host to LCD only)<br>
+<strong>There can be only 4 Data lanes at max.</strong></p>
+<h3 id="power-modes">Power Modes</h3>
+<ol>
+<li>Low power Mode (LP) – All the Lanes become signal ended and non-terminated and this mode is only used to transmit commands. It uses traditional single ended CMOS IO buffers and works at 0 to 1.2V logic level.</li>
+<li>High Speed Mode (HS) – It used low voltage differential signaling with 50 Ohm tracks and 100 Ohms termination and this mode is only used to transmit commands. It is used to transmit high speed pixel data.</li>
+</ol>
+<!-- end of the list -->
+<p>There is also a ultra-low power mode or ULPM.</p>
+<h3 id="important-points">Important points</h3>
+<ol>
+<li>Clock Lane goes from LP mode to HS mode before any data lane.</li>
+<li>All data lanes go from Low Speed mode to high speed together.</li>
+<li>After the transmission in HS Mode all lanes go back to low power mode.</li>
+<li>Clk has the option to stay in HS mode for the entire duration and it is called continuous clock mode. It generally depends on the LCD controller used.</li>
+<li>When shifting from HS mode to LP mode, Data lanes shifts before Clk lanes.</li>
+</ol>
+<!-- end of the list -->
+<p>{{&lt; raw &gt;}}<br>
+[HS \space bit \space clk = \frac{(Pixel \space clk * bits \space per \space pixel)}{No. \space of \space DSI \space LANES} * \frac{9}{8}]<br>
+{{&lt; /raw&gt;}}</p>
+<p>Here constant 9/8 = 1.125 = DSI overhead and we keep the clock frequency slightly up to accommodate for this.</p>
+<h2 id="modes-of-operation">Modes of operation</h2>
+<ol>
+<li>
+<p><strong>Command Mode</strong><br>
+Command Mode refers to operation in which transactions primarily take the form of sending commands and data to a display module, that incorporates a display controller.The display controller may include local registers and a frame buffer. Systems using Command Mode write to, and read from, the registers and frame buffer memory.</p>
+</li>
+<li>
+<p><strong>Video Mode Operation</strong><br>
+Video Mode refers to operation in which transfers from the host processor to the peripheral take the form of a real-time pixel stream. In normal operation, the display module relies on the host processor to provide image data at sufficient bandwidth to avoid flicker or other visible artifacts in the displayed image. Video information should only be transmitted using High Speed Mode.</p>
+</li>
+</ol>
+<p>{{&lt; image src="video_command_mode.png" alt="Video Mode vs command mode" caption="<a href="https://www.nxp.com/docs/en/application-note/AN12940.pdf?ref=localhost">Video Mode vs Command Mode</a>"&gt;}}</p>
+<h2 id="dsi-packets">DSI Packets</h2>
+<p>DSI has 2 types of packets Short Type and Long type.</p>
+<ol>
+<li>Short Packets – They are 4 bytes long and can be transmitted in either LP mode or HS mode. They are generally used to transfer commands.<br>
+When transmitting Display Commands Set (DCS) the Data0 becomes the DSI Register Address and rest of the Data packets becomes the Payload or argument. DATA0 is always the display command in both Short Packet and Long Packet.</li>
+</ol>
+<p>{{&lt; image src="image2.png" alt="DSI Short Packet Structure"&gt;}}</p>
+<ol start="2">
+<li>Long Packets – They can be 4 to 65541 bytes long and can only be transmitted in HS mode. They are generally used to transmit Pixel data but also for commands which are more than 4 bytes long.</li>
+</ol>
+<p>{{&lt; image src="image3.png" alt="DSI Long Packet Structure"&gt;}}</p>
+<!-- end of the list --> 
+<p>Here LP-11 on both the ends refers to low Power stop state where all the data and clock pins are at low power high level (1.2V).<br>
+To Read more about the Power state changes please refer to <a href="https://www.nxp.com/webapp/Download?colCode=TP-UNDERSTANDING-MPI-DSI-CSI-2-DPHY-INTERFACES&ref=localhost">this</a>.<br>
+When transmitting Display Commands Set (DCS) the Data0 becomes the DSI Register Address and rest of the Data packets becomes the Payload or argument. For commands with no payload or parameter , data1 is always 0x00H. (For ex - SWRESET (01h),  ALLPOFF (22h), SLPIN (10h),  ALLPON (23h), SLPOUT (11h)).</p>
+<p>For example if sending ALLPOFF command, the packet data will look like.</p>
+<pre><code>Data0-22H 
+Data1-0xHH 
+</code></pre>
+<p>In the next part I am going to show you how to do LCD bring Up in i.MX RT 1160 or any NXP MCU which has MIPI-DSI support.<br>
+Thankyou For Reading! :smile:</p>
+<p>For Further Reading you can refer these:-</p>
+<ol>
+<li><a href="https://www.youtube.com/watch?v=r38nVmxBfvM&ab_channel=DanaLee&ref=localhost">How Analog Video Works</a></li>
+<li><a href="https://www.nxp.com/design/training/understanding-the-mipi-dsi-csi-2-and-d-phy-interfaces:TIP-UNDERSTANDING-MPI-DSI-CSI-2-DPHY-INTERFACES?ref=localhost">NXP's Webinar</a></li>
+<li><a href="https://www.nxp.com/docs/en/application-note/AN12940.pdf?ref=localhost">AN12940</a></li>
+<li><a href="https://studfile.net/preview/1645839/?ref=localhost">https://studfile.net/preview/1645839/</a></li>
+</ol>
+
+    </section>
+
+
+</article>
+</main>
+
+    <section class="footer-cta outer">
+        <div class="inner">
+            <h2 class="footer-cta-title">Sign up for more like this.</h2>
+            <a class="footer-cta-button" href="#/portal" data-portal>
+                <div class="footer-cta-input">Enter your email</div>
+                <span>Subscribe</span>
+            </a>
+        </div>
+    </section>
+
+
+
+            <aside class="read-more-wrap outer">
+                <div class="read-more inner">
+                        
+<article class="post-card post">
+
+    <a class="post-card-image-link" href="/6-thinking-hats-/">
+
+        <img class="post-card-image"
+            srcset="/content/images/size/w300/2023/11/six_thinking_hats.png 300w,
+                    /content/images/size/w600/2023/11/six_thinking_hats.png 600w,
+                    /content/images/size/w1000/2023/11/six_thinking_hats.png 1000w,
+                    /content/images/size/w2000/2023/11/six_thinking_hats.png 2000w"
+            sizes="(max-width: 1000px) 400px, 800px"
+            src="/content/images/size/w600/2023/11/six_thinking_hats.png"
+            alt="6 Thinking Hats!"
+            loading="lazy"
+        />
+
+
+    </a>
+
+    <div class="post-card-content">
+
+        <a class="post-card-content-link" href="/6-thinking-hats-/">
+            <header class="post-card-header">
+                <div class="post-card-tags">
+                </div>
+                <h2 class="post-card-title">
+                    6 Thinking Hats!
+                </h2>
+            </header>
+                <div class="post-card-excerpt">Introduction
+
+
+Hello there, The "6 Thinking Hats" technique is a powerful tool/technique for improving decision-making and problem-solving in group settings. Developed by Dr. Edward de Bono, the technique encourages individuals to approach a problem or decision from multiple perspectives, rather than getting stuck in one way of thinking. I</div>
+        </a>
+
+        <footer class="post-card-meta">
+            <time class="post-card-meta-date" datetime="2023-11-23">Nov 23, 2023</time>
+                <span class="post-card-meta-length">2 min read</span>
+        </footer>
+
+    </div>
+
+</article>
+                        
+<article class="post-card post">
+
+    <a class="post-card-image-link" href="/why-i-started-this-blog-/">
+
+        <img class="post-card-image"
+            srcset="/content/images/size/w300/2023/11/why.jpg 300w,
+                    /content/images/size/w600/2023/11/why.jpg 600w,
+                    /content/images/size/w1000/2023/11/why.jpg 1000w,
+                    /content/images/size/w2000/2023/11/why.jpg 2000w"
+            sizes="(max-width: 1000px) 400px, 800px"
+            src="/content/images/size/w600/2023/11/why.jpg"
+            alt="Why I Started this blog?"
+            loading="lazy"
+        />
+
+
+    </a>
+
+    <div class="post-card-content">
+
+        <a class="post-card-content-link" href="/why-i-started-this-blog-/">
+            <header class="post-card-header">
+                <div class="post-card-tags">
+                </div>
+                <h2 class="post-card-title">
+                    Why I Started this blog?
+                </h2>
+            </header>
+                <div class="post-card-excerpt">Who am I?
+
+
+Before starting with the "why" let me take a moment to introduce myself, My name is Shekhar Verma (yes, you guessed it right :laughing:).
+
+I am an Electronics Engineer and I love to learn new things, create stuff and tinker with existing ones. I am currently Working</div>
+        </a>
+
+        <footer class="post-card-meta">
+            <time class="post-card-meta-date" datetime="2023-11-23">Nov 23, 2023</time>
+                <span class="post-card-meta-length">4 min read</span>
+        </footer>
+
+    </div>
+
+</article>
+                        
+<article class="post-card post">
+
+    <a class="post-card-image-link" href="/mastering-function-decorators-in-python-/">
+
+        <img class="post-card-image"
+            srcset="/content/images/size/w300/2023/11/cover_image.png 300w,
+                    /content/images/size/w600/2023/11/cover_image.png 600w,
+                    /content/images/size/w1000/2023/11/cover_image.png 1000w,
+                    /content/images/size/w2000/2023/11/cover_image.png 2000w"
+            sizes="(max-width: 1000px) 400px, 800px"
+            src="/content/images/size/w600/2023/11/cover_image.png"
+            alt="Mastering Function Decorators in Python!"
+            loading="lazy"
+        />
+
+
+    </a>
+
+    <div class="post-card-content">
+
+        <a class="post-card-content-link" href="/mastering-function-decorators-in-python-/">
+            <header class="post-card-header">
+                <div class="post-card-tags">
+                </div>
+                <h2 class="post-card-title">
+                    Mastering Function Decorators in Python!
+                </h2>
+            </header>
+                <div class="post-card-excerpt">Decorators are an extremely useful feature in Python language that allows programmers to change the behaviour of a function without changing the function. Sounds strange? Well Don't worry because
+
+
+In this post, We are going to:-
+
+
+ 1. Understand what are decorators and how they work.
+ 2. How to create</div>
+        </a>
+
+        <footer class="post-card-meta">
+            <time class="post-card-meta-date" datetime="2023-11-23">Nov 23, 2023</time>
+                <span class="post-card-meta-length">7 min read</span>
+        </footer>
+
+    </div>
+
+</article>
+                </div>
+            </aside>
+
+
+
+    </div>
+
+    <footer class="site-footer outer">
+        <div class="inner">
+            <section class="copyright"><a href="http://localhost:2368">Shekhar Verma</a> &copy; 2023</section>
+            <nav class="site-footer-nav">
+                <ul class="nav">
+    <li class="nav-sign-up"><a href="#/portal/">Sign up</a></li>
+</ul>
+
+            </nav>
+            <div class="gh-powered-by"><a href="https://ghost.org/" target="_blank" rel="noopener">Powered by Ghost</a></div>
+        </div>
+    </footer>
+
+</div>
+
+    <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="pswp__bg"></div>
+
+    <div class="pswp__scroll-wrap">
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script
+    src="https://code.jquery.com/jquery-3.5.1.min.js"
+    integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
+    crossorigin="anonymous">
+</script>
+<script src="/assets/built/casper.js?v=59760bab68"></script>
+<script>
+$(document).ready(function () {
+    // Mobile Menu Trigger
+    $('.gh-burger').click(function () {
+        $('body').toggleClass('gh-head-open');
+    });
+    // FitVids - Makes video embeds responsive
+    $(".gh-content").fitVids();
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/components/prism-core.min.js" integrity="sha512-9khQRAUBYEJDCDVP2yw3LRUQvjJ0Pjx0EShmaQjcHa6AXiOv6qHQu9lCAIR8O+/D8FtaCoJ2c0Tf9Xo7hYH01Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/plugins/autoloader/prism-autoloader.min.js" integrity="sha512-fTl/qcO1VgvKtOMApX2PdZzkziyr2stM65GYPLGuYMnuMm1z2JLJG6XVU7C/mR+E7xBUqCivykuhlzfqxXBXbg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+</body>
+</html>
