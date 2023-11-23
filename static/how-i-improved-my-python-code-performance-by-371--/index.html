@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <title>How I improved my python code Performance by 371%!</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <link rel="preload" as="style" href="/assets/built/screen.css?v=8445e84feb" />
+    <link rel="preload" as="script" href="/assets/built/casper.js?v=8445e84feb" />
+
+    <link rel="stylesheet" type="text/css" href="/assets/built/screen.css?v=8445e84feb" />
+
+    <meta name="description" content="From 29.3s runtime to 6.3s without any external library!">
+    <link rel="canonical" href="http://localhost:2368/how-i-improved-my-python-code-performance-by-371--/">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+    <meta property="og:site_name" content="Shekhar Verma">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="How I improved my python code Performance by 371%!">
+    <meta property="og:description" content="From 29.3s runtime to 6.3s without any external library!">
+    <meta property="og:url" content="http://localhost:2368/how-i-improved-my-python-code-performance-by-371--/">
+    <meta property="og:image" content="http://localhost:2368/content/images/2023/11/python.jpg">
+    <meta property="article:published_time" content="2023-11-23T09:31:30.000Z">
+    <meta property="article:modified_time" content="2023-11-23T10:56:45.000Z">
+    <meta property="article:tag" content="python">
+    <meta property="article:tag" content="python optimisation">
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="How I improved my python code Performance by 371%!">
+    <meta name="twitter:description" content="From 29.3s runtime to 6.3s without any external library!">
+    <meta name="twitter:url" content="http://localhost:2368/how-i-improved-my-python-code-performance-by-371--/">
+    <meta name="twitter:image" content="http://localhost:2368/content/images/2023/11/python.jpg">
+    <meta name="twitter:label1" content="Written by">
+    <meta name="twitter:data1" content="Shekhar Verma">
+    <meta name="twitter:label2" content="Filed under">
+    <meta name="twitter:data2" content="python, python optimisation">
+    <meta name="twitter:site" content="@shekhu_verma">
+    <meta name="twitter:creator" content="@shekhu_verma">
+    <meta property="og:image:width" content="719">
+    <meta property="og:image:height" content="480">
+    
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "publisher": {
+        "@type": "Organization",
+        "name": "Shekhar Verma",
+        "url": "http://localhost:2368/",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "http://localhost:2368/favicon.ico"
+        }
+    },
+    "author": {
+        "@type": "Person",
+        "name": "Shekhar Verma",
+        "image": {
+            "@type": "ImageObject",
+            "url": "http://localhost:2368/content/images/2023/11/1679463984748.png",
+            "width": 400,
+            "height": 400
+        },
+        "url": "http://localhost:2368/author/shekhar/",
+        "sameAs": [
+            "https://twitter.com/shekhu_verma"
+        ]
+    },
+    "headline": "How I improved my python code Performance by 371%!",
+    "url": "http://localhost:2368/how-i-improved-my-python-code-performance-by-371--/",
+    "datePublished": "2023-11-23T09:31:30.000Z",
+    "dateModified": "2023-11-23T10:56:45.000Z",
+    "image": {
+        "@type": "ImageObject",
+        "url": "http://localhost:2368/content/images/2023/11/python.jpg",
+        "width": 719,
+        "height": 480
+    },
+    "keywords": "python, python optimisation",
+    "description": "Introduction\n\n\nBefore getting started let’s discuss the problem statement in hand. I wanted to analyze some data stored in a text file. Each row contained four numerical values demlimited by a space, for a total of 46.66M rows. The size of the file is around 1.11 GB, and I am attaching a small screen shot of the data below so that you get the idea what it looks like.\n\n\n{{&lt; image src&#x3D;&quot;data.png&quot; alt&#x3D;&quot;Screenshot of data&quot;&gt;}}\n\n\nI needed to extract only the rows for a given value of the third column (",
+    "mainEntityOfPage": "http://localhost:2368/how-i-improved-my-python-code-performance-by-371--/"
+}
+    </script>
+
+    <meta name="generator" content="Ghost 5.74">
+    <link rel="alternate" type="application/rss+xml" title="Shekhar Verma" href="http://localhost:2368/rss/">
+    <script defer src="https://cdn.jsdelivr.net/ghost/portal@~2.36/umd/portal.min.js" data-i18n="false" data-ghost="http://localhost:2368/" data-key="faa7d54788c8c1c8975f4dd2b0" data-api="http://localhost:2368/ghost/api/content/" crossorigin="anonymous"></script><style id="gh-members-styles">.gh-post-upgrade-cta-content,
+.gh-post-upgrade-cta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    text-align: center;
+    width: 100%;
+    color: #ffffff;
+    font-size: 16px;
+}
+
+.gh-post-upgrade-cta-content {
+    border-radius: 8px;
+    padding: 40px 4vw;
+}
+
+.gh-post-upgrade-cta h2 {
+    color: #ffffff;
+    font-size: 28px;
+    letter-spacing: -0.2px;
+    margin: 0;
+    padding: 0;
+}
+
+.gh-post-upgrade-cta p {
+    margin: 20px 0 0;
+    padding: 0;
+}
+
+.gh-post-upgrade-cta small {
+    font-size: 16px;
+    letter-spacing: -0.2px;
+}
+
+.gh-post-upgrade-cta a {
+    color: #ffffff;
+    cursor: pointer;
+    font-weight: 500;
+    box-shadow: none;
+    text-decoration: underline;
+}
+
+.gh-post-upgrade-cta a:hover {
+    color: #ffffff;
+    opacity: 0.8;
+    box-shadow: none;
+    text-decoration: underline;
+}
+
+.gh-post-upgrade-cta a.gh-btn {
+    display: block;
+    background: #ffffff;
+    text-decoration: none;
+    margin: 28px 0 0;
+    padding: 8px 18px;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.gh-post-upgrade-cta a.gh-btn:hover {
+    opacity: 0.92;
+}</style>
+    <script defer src="https://cdn.jsdelivr.net/ghost/sodo-search@~1.1/umd/sodo-search.min.js" data-key="faa7d54788c8c1c8975f4dd2b0" data-styles="https://cdn.jsdelivr.net/ghost/sodo-search@~1.1/umd/main.css" data-sodo-search="http://localhost:2368/" crossorigin="anonymous"></script>
+    
+    <link href="http://localhost:2368/webmentions/receive/" rel="webmention">
+    <script defer src="/public/member-attribution.min.js?v=8445e84feb"></script><style>:root {--ghost-accent-color: #878484;}</style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/themes/prism-tomorrow.min.css" integrity="sha512-vswe+cgvic/XBoF1OcM/TeJ2FW0OofqAVdCZiEYkd6dwGXthvkSFWOoGGJgS2CW70VK5dQM5Oh+7ne47s74VTg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+</head>
+<body class="post-template tag-python tag-python-optimisation is-head-left-logo has-cover">
+<div class="viewport">
+
+    <header id="gh-head" class="gh-head outer">
+        <div class="gh-head-inner inner">
+            <div class="gh-head-brand">
+                <a class="gh-head-logo no-image" href="http://localhost:2368">
+                        Shekhar Verma
+                </a>
+                <button class="gh-search gh-icon-btn" aria-label="Search this site" data-ghost-search><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></button>
+                <button class="gh-burger"></button>
+            </div>
+
+            <nav class="gh-head-menu">
+                <ul class="nav">
+    <li class="nav-home"><a href="http://localhost:2368/">Home</a></li>
+    <li class="nav-about"><a href="http://localhost:2368/about/">About</a></li>
+</ul>
+
+            </nav>
+
+            <div class="gh-head-actions">
+                    <button class="gh-search gh-icon-btn" data-ghost-search><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></button>
+                    <div class="gh-head-members">
+                                <a class="gh-head-link" href="#/portal/signin" data-portal="signin">Sign in</a>
+                                <a class="gh-head-button" href="#/portal/signup" data-portal="signup">Subscribe</a>
+                    </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="site-content">
+        
+
+
+
+<main id="site-main" class="site-main">
+<article class="article post tag-python tag-python-optimisation featured ">
+
+    <header class="article-header gh-canvas">
+
+        <div class="article-tag post-card-tags">
+                <span class="post-card-primary-tag">
+                    <a href="/tag/python/">python</a>
+                </span>
+                <span class="post-card-featured"><svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M4.49365 4.58752C3.53115 6.03752 2.74365 7.70002 2.74365 9.25002C2.74365 10.6424 3.29678 11.9778 4.28134 12.9623C5.26591 13.9469 6.60127 14.5 7.99365 14.5C9.38604 14.5 10.7214 13.9469 11.706 12.9623C12.6905 11.9778 13.2437 10.6424 13.2437 9.25002C13.2437 6.00002 10.9937 3.50002 9.16865 1.68127L6.99365 6.25002L4.49365 4.58752Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg> Featured</span>
+        </div>
+
+        <h1 class="article-title">How I improved my python code Performance by 371%!</h1>
+
+
+        <div class="article-byline">
+        <section class="article-byline-content">
+
+            <ul class="author-list">
+                <li class="author-list-item">
+                    <a href="/author/shekhar/" class="author-avatar">
+                        <img class="author-profile-image" src="/content/images/size/w100/2023/11/1679463984748.png" alt="Shekhar Verma" />
+                    </a>
+                </li>
+            </ul>
+
+            <div class="article-byline-meta">
+                <h4 class="author-name"><a href="/author/shekhar/">Shekhar Verma</a></h4>
+                <div class="byline-meta-content">
+                    <time class="byline-meta-date" datetime="2023-11-23">Nov 23, 2023</time>
+                        <span class="byline-reading-time"><span class="bull">&bull;</span> 4 min read</span>
+                </div>
+            </div>
+
+        </section>
+        </div>
+
+            <figure class="article-image">
+                <img
+                    srcset="/content/images/size/w300/2023/11/python.jpg 300w,
+                            /content/images/size/w600/2023/11/python.jpg 600w,
+                            /content/images/size/w1000/2023/11/python.jpg 1000w,
+                            /content/images/size/w2000/2023/11/python.jpg 2000w"
+                    sizes="(min-width: 1400px) 1400px, 92vw"
+                    src="/content/images/size/w2000/2023/11/python.jpg"
+                    alt="How I improved my python code Performance by 371%!"
+                />
+            </figure>
+
+    </header>
+
+    <section class="gh-content gh-canvas">
+        <h2 id="introduction">Introduction</h2>
+<p>Before getting started let’s discuss the problem statement in hand. I wanted to analyze some data stored in a text file. Each row contained four numerical values demlimited by a space, for a total of 46.66M rows. The size of the file is around 1.11 GB, and I am attaching a small screen shot of the data below so that you get the idea what it looks like.</p>
+<p>{{&lt; image src="data.png" alt="Screenshot of data"&gt;}}</p>
+<p>I needed to extract only the rows for a given value of the third column (3100.10 in the image above)<br>
+The first thing I tried was to simply use numpy.genfromtxt() but it gave memory error as the data is too big to handle at once.</p>
+<p>I tried to segment the data into smaller chunks and do the same, but it was painfully slow :tired_face: so I tried various things to get the job done in the fastest possible way. I will show you the code along with the concepts I used to optimise my code.</p>
+<h3 id="starting-point">Starting Point</h3>
+<p>This is the most basic approach to solving this problem. Iterate through the entire file line by line, check if the line(row) contains that value, if it does then append the row to a new file.</p>
+<pre><code class="language-py">def Function1():
+	output="result.txt"
+	output_file=open(output, "w")
+	value=3100.10
+	with open(file, "r") as f:
+		for line in f:
+			if(line!="\n"):
+				if(len(line.split(" "))==4):
+					try:
+						if(int(float(line.split(" ")[2]))==int(value)):
+							output_file.write(line)
+					except ValueError:
+						continue
+
+	f.close()
+	output_file.close()
+</code></pre>
+<p><strong>The code took 29.3 s ± 56.7 ms per loop (mean ± std. dev. of 3 runs, 1 loop each)</strong></p>
+<h3 id="1-loop-invariance">1. Loop Invariance</h3>
+<p>The first step of optimization is to look at the code and see whether we are doing something that is not necessary at all. In the loop where I am iterating through the lines , I am using int(value) in the loop to compare the value. This can be avoided by converting the value to an int once and using it in the loop. This is called Loop invariance, where we do something in the loop again and again which can be avoided.</p>
+<p>You can read more about this <a href="https://en.wikipedia.org/wiki/Loop_invariant?ref=localhost">here</a></p>
+<p>Here is the code!</p>
+<pre><code class="language-py">def Function2():
+	output="result.txt"
+	output_file=open(output, "w")
+	value=int(3100.10)
+	with open(file, "r") as f:
+		for line in f:
+			if(line!="\n"):
+				if(len(line.split(" "))==4):
+					try:
+						if(int(float(line.split(" ")[2]))==value):
+							output_file.write(line)
+					except ValueError:
+						continue
+
+	f.close()
+	output_file.close()
+</code></pre>
+<p><strong>The code took 27.5 s ± 264 ms per loop (mean ± std. dev. of 3 runs, 1 loop each)</strong><br>
+By changing a single line of code, the code gained a <strong>6.5% performance boost</strong> over the previous code.It's not much but this is a very common mistake that programmers do.</p>
+<h3 id="2-memory-mapping-the-file">2. Memory Mapping the File</h3>
+<p>It is a technique in which we load the entire file into memory (RAM) which is much faster than conventional file IO. Conventional IO uses multiple system calls to read the data from the disk and get it back to the program via multiple data buffers. Memory mapping skips these steps and copies the data to memory leading to improved performance (in most cases).</p>
+<p>Python has a module named <a href="https://docs.python.org/3/library/mmap.html?ref=localhost">"mmap"</a> that is used for thispurpose.</p>
+<p>Here is the code!</p>
+<pre><code class="language-py">def Function3():
+    output="result.txt"
+    output_file=open(output, "wb")
+    value=int(3100.10)
+    with open(file, "r+b") as f:
+        mmap_file=mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
+        for line in iter(mmap_file.readline, b""):
+            if(line!=b"\n"):
+                if(len(line.split(b" "))==4):
+                    try:
+                        if(int(float(line.split(b" ")[2]))==value):
+                            output_file.write(line)
+                    except ValueError:
+                        continue
+        mmap_file.flush()
+
+    f.close()
+    output_file.close()
+</code></pre>
+<p><strong>The code took 22.8 s ± 124 ms per loop (mean ± std. dev. of 3 runs, 1 loop each)</strong><br>
+Its <strong>20% performance</strong> increase from the previous code.</p>
+<h3 id="3-using-slicing-instead-of-data-type-conversion">3. Using slicing instead of data type conversion</h3>
+<p>In line int(float(line.split(b" ")[2]))==value , I am slicing the row to get the 3rd element and then converting the string to float and then to int to do the comparison.</p>
+<p>It goes like "0 3098 3100.10 56188" -&gt;"3100.10:-&gt;3100.10-&gt;3100</p>
+<p>Now instead of using float and then int to convert a string with a decimal to integer I used slicing which resulted in a huge performance gain as string operations are faster than data conversions.</p>
+<p>Here is the code!</p>
+<pre><code class="language-py">def Function4():
+    output="result.txt"
+    output_file=open(output, "wb")
+    value=int(3100.10)
+    with open(file, "r+b") as f:
+        mmap_file=mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
+        for line in iter(mmap_file.readline, b""):
+            if(line!=b"\n"):
+                if(len(line.split(b" "))==4):
+                    try:
+                        if(int(line.split(b" ")[2][:-3])==value):
+                            output_file.write(line)
+                    except ValueError:
+                        continue
+        mmap_file.flush()
+
+    f.close()
+    output_file.close()
+</code></pre>
+<p><strong>This time the code took 20 s ± 171 ms per loop (mean ± std. dev. of 3 runs, 1 loop each)</strong><br>
+Its <strong>14% performance increase</strong> from the previous code just by changing a line of code</p>
+<h3 id="4-using-the-find-operation">4. Using the find operation</h3>
+<p>Now this is the final nail in the coffin, up until this time I was iterating through the lines, extracting the 3rd column value and comparing it but this time I am using find operation to look for the desired value in each line. And it is surprisingly fast!!.<br>
+You can read more about it <a href="https://realpython.com/python-mmap/?ref=localhost#search-a-memory-mapped-file">here</a></p>
+<p>Here is the code!</p>
+<pre><code class="language-py">def Function5():
+	output="result.txt"
+	output_file=open(output, "wb")
+	value=int(3100.10)
+	value=(str(value)+".").encode()
+	with open(file, "r+b") as f:
+		mmap_file=mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
+		for line in iter(mmap_file.readline, b""):
+			find=line.find(value)
+			if(find&gt;=7 and find&lt;=11):
+				output_file.write(line)
+		mmap_file.flush()
+
+	f.close()
+	output_file.close()
+</code></pre>
+<p><strong>This time the code took 6.22 s ± 55.8 ms per loop (mean ± std. dev. of 3 runs, 1 loop each)</strong><br>
+It's <strong>221.5% performance increase</strong> from the previous code.<br>
+This is almost <strong>4.7 times increase in performance</strong> from where we started.</p>
+<p><strong>Hardware Used :-</strong><br>
+-&gt;Legion 5 15ACH6<br>
+-&gt;AMD 5800H<br>
+-&gt;16 GB RAM</p>
+<p>Here below you can see the comparison between Windows 10 Vs ubuntu (22.04 LTS)!</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Optimisation Level</th>
+<th style="text-align:center">Windows</th>
+<th style="text-align:center">Linux</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">0</td>
+<td style="text-align:center">29.3</td>
+<td style="text-align:center">18.2</td>
+</tr>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">27.5</td>
+<td style="text-align:center">17.3</td>
+</tr>
+<tr>
+<td style="text-align:center">2</td>
+<td style="text-align:center">22.8</td>
+<td style="text-align:center">19.3</td>
+</tr>
+<tr>
+<td style="text-align:center">3</td>
+<td style="text-align:center">20</td>
+<td style="text-align:center">18.9</td>
+</tr>
+<tr>
+<td style="text-align:center">4</td>
+<td style="text-align:center">6.22</td>
+<td style="text-align:center">8.88</td>
+</tr>
+</tbody>
+</table>
+<p>{{&lt; image src="comparison_chart.jpeg" alt="Comparison Chart"&gt;}}</p>
+<p>Thankyou for reading! :smile:</p>
+
+    </section>
+
+
+</article>
+</main>
+
+    <section class="footer-cta outer">
+        <div class="inner">
+            <h2 class="footer-cta-title">Sign up for more like this.</h2>
+            <a class="footer-cta-button" href="#/portal" data-portal>
+                <div class="footer-cta-input">Enter your email</div>
+                <span>Subscribe</span>
+            </a>
+        </div>
+    </section>
+
+
+
+            <aside class="read-more-wrap outer">
+                <div class="read-more inner">
+                        
+<article class="post-card post">
+
+    <a class="post-card-image-link" href="/6-thinking-hats-/">
+
+        <img class="post-card-image"
+            srcset="/content/images/size/w300/2023/11/six_thinking_hats.png 300w,
+                    /content/images/size/w600/2023/11/six_thinking_hats.png 600w,
+                    /content/images/size/w1000/2023/11/six_thinking_hats.png 1000w,
+                    /content/images/size/w2000/2023/11/six_thinking_hats.png 2000w"
+            sizes="(max-width: 1000px) 400px, 800px"
+            src="/content/images/size/w600/2023/11/six_thinking_hats.png"
+            alt="6 Thinking Hats!"
+            loading="lazy"
+        />
+
+
+    </a>
+
+    <div class="post-card-content">
+
+        <a class="post-card-content-link" href="/6-thinking-hats-/">
+            <header class="post-card-header">
+                <div class="post-card-tags">
+                </div>
+                <h2 class="post-card-title">
+                    6 Thinking Hats!
+                </h2>
+            </header>
+                <div class="post-card-excerpt">Introduction
+
+
+Hello there, The "6 Thinking Hats" technique is a powerful tool/technique for improving decision-making and problem-solving in group settings. Developed by Dr. Edward de Bono, the technique encourages individuals to approach a problem or decision from multiple perspectives, rather than getting stuck in one way of thinking. I</div>
+        </a>
+
+        <footer class="post-card-meta">
+            <time class="post-card-meta-date" datetime="2023-11-23">Nov 23, 2023</time>
+                <span class="post-card-meta-length">2 min read</span>
+        </footer>
+
+    </div>
+
+</article>
+                        
+<article class="post-card post">
+
+    <a class="post-card-image-link" href="/why-i-started-this-blog-/">
+
+        <img class="post-card-image"
+            srcset="/content/images/size/w300/2023/11/why.jpg 300w,
+                    /content/images/size/w600/2023/11/why.jpg 600w,
+                    /content/images/size/w1000/2023/11/why.jpg 1000w,
+                    /content/images/size/w2000/2023/11/why.jpg 2000w"
+            sizes="(max-width: 1000px) 400px, 800px"
+            src="/content/images/size/w600/2023/11/why.jpg"
+            alt="Why I Started this blog?"
+            loading="lazy"
+        />
+
+
+    </a>
+
+    <div class="post-card-content">
+
+        <a class="post-card-content-link" href="/why-i-started-this-blog-/">
+            <header class="post-card-header">
+                <div class="post-card-tags">
+                </div>
+                <h2 class="post-card-title">
+                    Why I Started this blog?
+                </h2>
+            </header>
+                <div class="post-card-excerpt">Who am I?
+
+
+Before starting with the "why" let me take a moment to introduce myself, My name is Shekhar Verma (yes, you guessed it right :laughing:).
+
+I am an Electronics Engineer and I love to learn new things, create stuff and tinker with existing ones. I am currently Working</div>
+        </a>
+
+        <footer class="post-card-meta">
+            <time class="post-card-meta-date" datetime="2023-11-23">Nov 23, 2023</time>
+                <span class="post-card-meta-length">4 min read</span>
+        </footer>
+
+    </div>
+
+</article>
+                        
+<article class="post-card post">
+
+    <a class="post-card-image-link" href="/mastering-function-decorators-in-python-/">
+
+        <img class="post-card-image"
+            srcset="/content/images/size/w300/2023/11/cover_image.png 300w,
+                    /content/images/size/w600/2023/11/cover_image.png 600w,
+                    /content/images/size/w1000/2023/11/cover_image.png 1000w,
+                    /content/images/size/w2000/2023/11/cover_image.png 2000w"
+            sizes="(max-width: 1000px) 400px, 800px"
+            src="/content/images/size/w600/2023/11/cover_image.png"
+            alt="Mastering Function Decorators in Python!"
+            loading="lazy"
+        />
+
+
+    </a>
+
+    <div class="post-card-content">
+
+        <a class="post-card-content-link" href="/mastering-function-decorators-in-python-/">
+            <header class="post-card-header">
+                <div class="post-card-tags">
+                </div>
+                <h2 class="post-card-title">
+                    Mastering Function Decorators in Python!
+                </h2>
+            </header>
+                <div class="post-card-excerpt">Decorators are an extremely useful feature in Python language that allows programmers to change the behaviour of a function without changing the function. Sounds strange? Well Don't worry because
+
+
+In this post, We are going to:-
+
+
+ 1. Understand what are decorators and how they work.
+ 2. How to create</div>
+        </a>
+
+        <footer class="post-card-meta">
+            <time class="post-card-meta-date" datetime="2023-11-23">Nov 23, 2023</time>
+                <span class="post-card-meta-length">7 min read</span>
+        </footer>
+
+    </div>
+
+</article>
+                </div>
+            </aside>
+
+
+
+    </div>
+
+    <footer class="site-footer outer">
+        <div class="inner">
+            <section class="copyright"><a href="http://localhost:2368">Shekhar Verma</a> &copy; 2023</section>
+            <nav class="site-footer-nav">
+                <ul class="nav">
+    <li class="nav-sign-up"><a href="#/portal/">Sign up</a></li>
+    <li class="nav-linkedin"><a href="https://www.linkedin.com/in/shekharverma98/">Linkedin</a></li>
+    <li class="nav-github"><a href="https://github.com/shekhuverma">Github</a></li>
+</ul>
+
+            </nav>
+            <div class="gh-powered-by"><a href="https://ghost.org/" target="_blank" rel="noopener">Powered by Ghost</a></div>
+        </div>
+    </footer>
+
+</div>
+
+    <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="pswp__bg"></div>
+
+    <div class="pswp__scroll-wrap">
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script
+    src="https://code.jquery.com/jquery-3.5.1.min.js"
+    integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
+    crossorigin="anonymous">
+</script>
+<script src="/assets/built/casper.js?v=8445e84feb"></script>
+<script>
+$(document).ready(function () {
+    // Mobile Menu Trigger
+    $('.gh-burger').click(function () {
+        $('body').toggleClass('gh-head-open');
+    });
+    // FitVids - Makes video embeds responsive
+    $(".gh-content").fitVids();
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/components/prism-core.min.js" integrity="sha512-9khQRAUBYEJDCDVP2yw3LRUQvjJ0Pjx0EShmaQjcHa6AXiOv6qHQu9lCAIR8O+/D8FtaCoJ2c0Tf9Xo7hYH01Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/plugins/autoloader/prism-autoloader.min.js" integrity="sha512-fTl/qcO1VgvKtOMApX2PdZzkziyr2stM65GYPLGuYMnuMm1z2JLJG6XVU7C/mR+E7xBUqCivykuhlzfqxXBXbg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+</body>
+</html>

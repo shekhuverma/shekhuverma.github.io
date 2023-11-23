@@ -1,0 +1,1245 @@
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:media="http://search.yahoo.com/mrss/"><channel><title><![CDATA[Shekhar Verma]]></title><description><![CDATA[Thoughts, stories and ideas.]]></description><link>http://localhost:2368/</link><image><url>http://localhost:2368/favicon.png</url><title>Shekhar Verma</title><link>http://localhost:2368/</link></image><generator>Ghost 5.74</generator><lastBuildDate>Thu, 23 Nov 2023 16:47:06 GMT</lastBuildDate><atom:link href="http://localhost:2368/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Integrating payment Webhooks with FastAPI in Python! - 1]]></title><description><![CDATA[How to create to your Webhook endpoint in FastAPI and save the data in a database.]]></description><link>http://localhost:2368/integrating-payment-webhooks-with-fastapi-in-python----1/</link><guid isPermaLink="false">655f1bf2624c4c427cb2935d</guid><category><![CDATA[FastAPI]]></category><category><![CDATA[Python]]></category><dc:creator><![CDATA[Shekhar Verma]]></dc:creator><pubDate>Thu, 23 Nov 2023 09:31:30 GMT</pubDate><media:content url="http://localhost:2368/content/images/2023/11/cover_image-1.jpg" medium="image"/><content:encoded><![CDATA[<!--more-->
+<img src="http://localhost:2368/content/images/2023/11/cover_image-1.jpg" alt="Integrating payment Webhooks with FastAPI in Python! - 1"><p>FastAPI is a modern web development framework used for creating RESTful APIs in Python.  It is easy to use and offers extremely fast performance and documentation support.</p>
+<p>In this tutorial, we are going to use Razorpay as our payment processing gateway to receive payment details through webhooks whenever a payment is made. In the next Post, we are going to see how to use and save this data using Pydantics and PostgreSQL database in Python.</p>
+<p>You are going to learn</p>
+<ul>
+<li>How to Create a Basic RESTful API using FastAPI</li>
+<li>How to Create your own webhook endpoints using FastAPI</li>
+<li>How to test and setup Razorpay webhooks</li>
+<li>How to Triggers webhook on your local machine</li>
+</ul>
+<p>But before diving in let&#x2019;s understand some basics.</p>
+<h2 id="what-are-webhooks">What are webhooks?</h2>
+<p>Webhooks are a way for applications or websites to send real-time data to other applications or services. They provide a mechanism for one application to notify another application when a specific event or action occurs. Instead of constantly polling or checking for updates, the receiving application provides a URL endpoint (known as a webhook) that the sending application can send data to whenever a particular event happens.</p>
+<p>The sending application makes an HTTP request to the webhook URL with the relevant data. In our case, the sending application will be Razorpay which will send the data whenever a payment event occurs.</p>
+<p>The receiving application (FastAPI application in our case), known as the webhook listener, receives the request and can then do whatever it wants with the data.</p>
+<p>Webhooks are commonly used for notifications and automation tasks. For example &#x2013; Generating a license key whenever a new customer makes a payment for a software product and adding the user details to a database.</p>
+<p>Webhooks are also sometimes referred to as Reverse APIs because APIs send the data when the client requests but webhooks send the data without request from the client.</p>
+<p>{{&lt; image src=&quot;API_VS_WEBHOOK.png&quot; alt=&quot;API_VS_WEBHOOK&quot; loading=&quot;lazy&quot;&gt;}}</p>
+<!-- <img srcset="API_VS_WEBHOOK.png.jpg  1024w,
+      medium.jpg 640w,
+      small.jpg  320w"
+   sizes="(min-width: 36em) 33.3vw,
+      100vw"
+   src="API_VS_WEBHOOK.png"
+   alt="A rad wolf" /> -->
+<h2 id="fastapi">FastAPI</h2>
+<p>Let&#x2019;s install the FastAPI using the following command</p>
+<pre><code>pip install fastapi uvicorn[standard]
+</code></pre>
+<p>I have used Python 3.11 in this project. If you are using a different version then you might have to change the code a little bit.<br>
+You can Refer to the FastAPI documentation <a href="https://fastapi.tiangolo.com/?ref=localhost">here</a>.</p>
+<p>Now that we have installed fastAPI. Let&apos;s quickly create a &#x201C;hello world&#x201D; app using FastAPI. Copy and paste the following code in <em>main.py</em></p>
+<p>{{&lt; image src=&quot;image2.png&quot; alt=&quot;FastAPI App&quot; &gt;}}</p>
+<pre><code class="language-py"># main.py
+
+from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get(&quot;/&quot;)
+async def root():
+    return {&quot;message&quot;: &quot;Hello World&quot;}
+
+@app.get(&quot;/hello/{user}&quot;)
+async def greeting(user):
+    return {&quot;Hello&quot;: user}
+
+</code></pre>
+<p><strong>Operation</strong> &#x2013; It refers to as one of the HTTP methods (GET, POST, PUT, DELETE). Normally we use</p>
+<ul>
+<li><strong>GET</strong> &#x2013; To read Data</li>
+<li><strong>POST</strong> &#x2013; To Send Data</li>
+<li><strong>PUT</strong> &#x2013; To Update Data</li>
+<li><strong>DELETE</strong> &#x2013; To Delete Data</li>
+</ul>
+<p>The @app.get(&quot;/&quot;) decorator tells FastAPI that the function right below is in charge of handling requests that go to:</p>
+<ul>
+<li>the path <strong>&#x201C;/&#x201D;</strong></li>
+<li>using a <strong>get</strong> operation</li>
+</ul>
+<p>That&#x2019;s why it is called Path Operation Decorator and the function below is called Path Operation Function.</p>
+<p>This is the fastAPI code but it cannot run directly as a normal Python script. We need to use a server to run this app. <a href="https://www.uvicorn.org/?ref=localhost">Uvicorn</a> is used as a server for FastAPI applications (you can use others as well but this is the most popular one).</p>
+<p>Run the following command and you will see such output.</p>
+<pre><code>uvicorn main:app --reload
+</code></pre>
+<p>{{&lt; image src=&quot;image3.png&quot; alt=&quot;Uvicorn FastAPI App&quot; &gt;}}</p>
+<p>The <em>---reload</em> Flag at the end reloads the webserver when you make change to your source code. It saves a lot of time in development.</p>
+<p>Now go to <a href="http://127.0.0.1:8000/?ref=localhost">http://127.0.0.1:8000/</a> and you should see a similar output as seen in the figure below.</p>
+<p>{{&lt; image src=&quot;image4.jpg&quot; alt=&quot;FastAPI App Output 1&quot; height=300 &gt;}}</p>
+<p>{{&lt; image src=&quot;image5.jpg&quot; alt=&quot;FastAPI App Output 2&quot; height=300 &gt;}}</p>
+<h2 id="ngrok">NGROK</h2>
+<p>Till this point, everything is running on our local machine but to use the webhooks, we need to expose our localhost to the internet so that Razorpay can talk to our webhook.</p>
+<p>To do that we are going to use <a href="https://ngrok.com/?ref=localhost">NGROK</a>.</p>
+<p>Enter the following command after installing NGROK</p>
+<pre><code>ngrok http 8000
+</code></pre>
+<p>you will see a similar output (of course your link will be different).</p>
+<p>{{&lt; image src=&quot;image6.png&quot; alt=&quot;NGROK output&quot; height=500 &gt;}}</p>
+<p>Now if you go the link provided by the NGROK (xx.in.ngrok.i0) you will see the same message {&quot;msg&quot;: &quot;hello world&quot;}.</p>
+<p>NGROK basically acts as a tunnel to create a link between a temporary URL created by NGROK and your localhost.</p>
+<p><strong>Note:-</strong> In a free NGROK account you get a temporary URL VALID only for 2 hours and after 2 hours you have to regenerate the URL. (2 hours are more than enough to do all the development and testing on the local machine).</p>
+<p>We will use this URL generated by NGROK to receive our webhook.</p>
+<h2 id="setting-up-razorpay">Setting Up razorpay</h2>
+<p>Now that we have understood the basics, let&apos;s setup the payment webhook on Razorpay.</p>
+<p>Create a free test account on Razorpay and create a test payment page to test our webhook.<br>
+You can find the instructions to do that <a href="https://razorpay.com/docs/payments/payment-pages/create/?ref=localhost">Here</a>.</p>
+<p>Now it&apos;s time to add the webhook to our payment page.</p>
+<p>Go to developer options on the right side, then go to webhook and enter the details as follows.</p>
+<p>{{&lt; image src=&quot;image7.png&quot; alt=&quot;NGROK output&quot; height=500 &gt;}}</p>
+<p>This will trigger the webhook on our URL whenever you will receive payment.</p>
+<p><strong>Note</strong> &#x2013; Every time you will restart NGROK, you have to edit the &#x201C;Webhook URL&#x201D; because the URL changes. You can do this by going into your Razorpay account settings -&gt; Webhooks -&gt; selecting your webhook and choosing the edit option on the right side.</p>
+<h2 id="creating-an-endpoint-in-fastapi">Creating an Endpoint in FastAPI</h2>
+<p>Now that we have setup everything, lets create a basic endpoint to receive the data sent by the webhook.</p>
+<p>Look at the following code.</p>
+<pre><code class="language-python">from fastapi import FastAPI, Request, Response
+
+app = FastAPI()
+
+@app.get(&quot;/&quot;)
+async def root():
+    return {&quot;msg&quot;: &quot;hello world&quot;}
+
+@app.get(&quot;/hello/{user}&quot;)
+async def greeting(user):
+    return {&quot;Hello&quot;: user}
+
+@app.post(&quot;/webhook&quot;)
+async def receive_webhook(request: Request):
+    result = await request.json()
+    print(result)
+
+</code></pre>
+<p>Now that we have everything setup, let&apos;s run the uvicorn server once again and make a test payment using razorpay to see whether we receive the data on our FastAPI app.</p>
+<p>{{&lt; image src=&quot;image8.png&quot; alt=&quot;Razorpay test payment page&quot; &gt;}}</p>
+<p>(This is a testing page, you can make dummy payments)</p>
+<p>You can see that we have successfully received the payment data using Webhook. (I have hidden some sensitive information like my email ID and phone number).</p>
+<p>{{&lt; image src=&quot;image9.png&quot; alt=&quot;Razorpay test payment page&quot; &gt;}}</p>
+<p>In the next post we are going to see how to use Pydantics for data validation and PostgreSQL for storing the data in a database.</p>
+<p>Thankyou for reading :smile:</p>
+<p>Please Follow me on twitter <a href="https://twitter.com/shekhu_verma?ref=localhost">@shekhu_verma</a> and feel free to connect if you have any doubts or need any help.</p>
+]]></content:encoded></item><item><title><![CDATA[How I improved my python code Performance by 371%!]]></title><description><![CDATA[From 29.3s runtime to 6.3s without any external library!]]></description><link>http://localhost:2368/how-i-improved-my-python-code-performance-by-371--/</link><guid isPermaLink="false">655f1bf2624c4c427cb2935b</guid><category><![CDATA[python]]></category><category><![CDATA[python optimisation]]></category><dc:creator><![CDATA[Shekhar Verma]]></dc:creator><pubDate>Thu, 23 Nov 2023 09:31:30 GMT</pubDate><media:content url="http://localhost:2368/content/images/2023/11/python.jpg" medium="image"/><content:encoded><![CDATA[<h2 id="introduction">Introduction</h2>
+<img src="http://localhost:2368/content/images/2023/11/python.jpg" alt="How I improved my python code Performance by 371%!"><p>Before getting started let&#x2019;s discuss the problem statement in hand. I wanted to analyze some data stored in a text file. Each row contained four numerical values demlimited by a space, for a total of 46.66M rows. The size of the file is around 1.11 GB, and I am attaching a small screen shot of the data below so that you get the idea what it looks like.</p>
+<p>{{&lt; image src=&quot;data.png&quot; alt=&quot;Screenshot of data&quot;&gt;}}</p>
+<p>I needed to extract only the rows for a given value of the third column (3100.10 in the image above)<br>
+The first thing I tried was to simply use numpy.genfromtxt() but it gave memory error as the data is too big to handle at once.</p>
+<p>I tried to segment the data into smaller chunks and do the same, but it was painfully slow :tired_face: so I tried various things to get the job done in the fastest possible way. I will show you the code along with the concepts I used to optimise my code.</p>
+<h3 id="starting-point">Starting Point</h3>
+<p>This is the most basic approach to solving this problem. Iterate through the entire file line by line, check if the line(row) contains that value, if it does then append the row to a new file.</p>
+<pre><code class="language-py">def Function1():
+	output=&quot;result.txt&quot;
+	output_file=open(output, &quot;w&quot;)
+	value=3100.10
+	with open(file, &quot;r&quot;) as f:
+		for line in f:
+			if(line!=&quot;\n&quot;):
+				if(len(line.split(&quot; &quot;))==4):
+					try:
+						if(int(float(line.split(&quot; &quot;)[2]))==int(value)):
+							output_file.write(line)
+					except ValueError:
+						continue
+
+	f.close()
+	output_file.close()
+</code></pre>
+<p><strong>The code took 29.3 s &#xB1; 56.7 ms per loop (mean &#xB1; std. dev. of 3 runs, 1 loop each)</strong></p>
+<h3 id="1-loop-invariance">1. Loop Invariance</h3>
+<p>The first step of optimization is to look at the code and see whether we are doing something that is not necessary at all. In the loop where I am iterating through the lines , I am using int(value) in the loop to compare the value. This can be avoided by converting the value to an int once and using it in the loop. This is called Loop invariance, where we do something in the loop again and again which can be avoided.</p>
+<p>You can read more about this <a href="https://en.wikipedia.org/wiki/Loop_invariant?ref=localhost">here</a></p>
+<p>Here is the code!</p>
+<pre><code class="language-py">def Function2():
+	output=&quot;result.txt&quot;
+	output_file=open(output, &quot;w&quot;)
+	value=int(3100.10)
+	with open(file, &quot;r&quot;) as f:
+		for line in f:
+			if(line!=&quot;\n&quot;):
+				if(len(line.split(&quot; &quot;))==4):
+					try:
+						if(int(float(line.split(&quot; &quot;)[2]))==value):
+							output_file.write(line)
+					except ValueError:
+						continue
+
+	f.close()
+	output_file.close()
+</code></pre>
+<p><strong>The code took 27.5 s &#xB1; 264 ms per loop (mean &#xB1; std. dev. of 3 runs, 1 loop each)</strong><br>
+By changing a single line of code, the code gained a <strong>6.5% performance boost</strong> over the previous code.It&apos;s not much but this is a very common mistake that programmers do.</p>
+<h3 id="2-memory-mapping-the-file">2. Memory Mapping the File</h3>
+<p>It is a technique in which we load the entire file into memory (RAM) which is much faster than conventional file IO. Conventional IO uses multiple system calls to read the data from the disk and get it back to the program via multiple data buffers. Memory mapping skips these steps and copies the data to memory leading to improved performance (in most cases).</p>
+<p>Python has a module named <a href="https://docs.python.org/3/library/mmap.html?ref=localhost">&quot;mmap&quot;</a> that is used for thispurpose.</p>
+<p>Here is the code!</p>
+<pre><code class="language-py">def Function3():
+    output=&quot;result.txt&quot;
+    output_file=open(output, &quot;wb&quot;)
+    value=int(3100.10)
+    with open(file, &quot;r+b&quot;) as f:
+        mmap_file=mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
+        for line in iter(mmap_file.readline, b&quot;&quot;):
+            if(line!=b&quot;\n&quot;):
+                if(len(line.split(b&quot; &quot;))==4):
+                    try:
+                        if(int(float(line.split(b&quot; &quot;)[2]))==value):
+                            output_file.write(line)
+                    except ValueError:
+                        continue
+        mmap_file.flush()
+
+    f.close()
+    output_file.close()
+</code></pre>
+<p><strong>The code took 22.8 s &#xB1; 124 ms per loop (mean &#xB1; std. dev. of 3 runs, 1 loop each)</strong><br>
+Its <strong>20% performance</strong> increase from the previous code.</p>
+<h3 id="3-using-slicing-instead-of-data-type-conversion">3. Using slicing instead of data type conversion</h3>
+<p>In line int(float(line.split(b&quot; &quot;)[2]))==value , I am slicing the row to get the 3rd element and then converting the string to float and then to int to do the comparison.</p>
+<p>It goes like &quot;0 3098 3100.10 56188&quot; -&gt;&quot;3100.10:-&gt;3100.10-&gt;3100</p>
+<p>Now instead of using float and then int to convert a string with a decimal to integer I used slicing which resulted in a huge performance gain as string operations are faster than data conversions.</p>
+<p>Here is the code!</p>
+<pre><code class="language-py">def Function4():
+    output=&quot;result.txt&quot;
+    output_file=open(output, &quot;wb&quot;)
+    value=int(3100.10)
+    with open(file, &quot;r+b&quot;) as f:
+        mmap_file=mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
+        for line in iter(mmap_file.readline, b&quot;&quot;):
+            if(line!=b&quot;\n&quot;):
+                if(len(line.split(b&quot; &quot;))==4):
+                    try:
+                        if(int(line.split(b&quot; &quot;)[2][:-3])==value):
+                            output_file.write(line)
+                    except ValueError:
+                        continue
+        mmap_file.flush()
+
+    f.close()
+    output_file.close()
+</code></pre>
+<p><strong>This time the code took 20 s &#xB1; 171 ms per loop (mean &#xB1; std. dev. of 3 runs, 1 loop each)</strong><br>
+Its <strong>14% performance increase</strong> from the previous code just by changing a line of code</p>
+<h3 id="4-using-the-find-operation">4. Using the find operation</h3>
+<p>Now this is the final nail in the coffin, up until this time I was iterating through the lines, extracting the 3rd column value and comparing it but this time I am using find operation to look for the desired value in each line. And it is surprisingly fast!!.<br>
+You can read more about it <a href="https://realpython.com/python-mmap/?ref=localhost#search-a-memory-mapped-file">here</a></p>
+<p>Here is the code!</p>
+<pre><code class="language-py">def Function5():
+	output=&quot;result.txt&quot;
+	output_file=open(output, &quot;wb&quot;)
+	value=int(3100.10)
+	value=(str(value)+&quot;.&quot;).encode()
+	with open(file, &quot;r+b&quot;) as f:
+		mmap_file=mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
+		for line in iter(mmap_file.readline, b&quot;&quot;):
+			find=line.find(value)
+			if(find&gt;=7 and find&lt;=11):
+				output_file.write(line)
+		mmap_file.flush()
+
+	f.close()
+	output_file.close()
+</code></pre>
+<p><strong>This time the code took 6.22 s &#xB1; 55.8 ms per loop (mean &#xB1; std. dev. of 3 runs, 1 loop each)</strong><br>
+It&apos;s <strong>221.5% performance increase</strong> from the previous code.<br>
+This is almost <strong>4.7 times increase in performance</strong> from where we started.</p>
+<p><strong>Hardware Used :-</strong><br>
+-&gt;Legion 5 15ACH6<br>
+-&gt;AMD 5800H<br>
+-&gt;16 GB RAM</p>
+<p>Here below you can see the comparison between Windows 10 Vs ubuntu (22.04 LTS)!</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Optimisation Level</th>
+<th style="text-align:center">Windows</th>
+<th style="text-align:center">Linux</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">0</td>
+<td style="text-align:center">29.3</td>
+<td style="text-align:center">18.2</td>
+</tr>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">27.5</td>
+<td style="text-align:center">17.3</td>
+</tr>
+<tr>
+<td style="text-align:center">2</td>
+<td style="text-align:center">22.8</td>
+<td style="text-align:center">19.3</td>
+</tr>
+<tr>
+<td style="text-align:center">3</td>
+<td style="text-align:center">20</td>
+<td style="text-align:center">18.9</td>
+</tr>
+<tr>
+<td style="text-align:center">4</td>
+<td style="text-align:center">6.22</td>
+<td style="text-align:center">8.88</td>
+</tr>
+</tbody>
+</table>
+<p>{{&lt; image src=&quot;comparison_chart.jpeg&quot; alt=&quot;Comparison Chart&quot;&gt;}}</p>
+<p>Thankyou for reading! :smile:</p>
+]]></content:encoded></item><item><title><![CDATA[6 Thinking Hats!]]></title><description><![CDATA[A simple technique for brain stroming and improved decission making]]></description><link>http://localhost:2368/6-thinking-hats-/</link><guid isPermaLink="false">655f1bf2624c4c427cb29362</guid><dc:creator><![CDATA[Shekhar Verma]]></dc:creator><pubDate>Thu, 23 Nov 2023 09:31:30 GMT</pubDate><media:content url="http://localhost:2368/content/images/2023/11/six_thinking_hats.png" medium="image"/><content:encoded><![CDATA[<h2 id="introduction">Introduction</h2>
+<img src="http://localhost:2368/content/images/2023/11/six_thinking_hats.png" alt="6 Thinking Hats!"><p>Hello there, The &quot;6 Thinking Hats&quot; technique is a powerful tool/technique for improving decision-making and problem-solving in group settings. Developed by Dr. Edward de Bono, the technique encourages individuals to approach a problem or decision from multiple perspectives, rather than getting stuck in one way of thinking. I came across this technique in a podcast where the speaker was telling how they use this technique at their company. I read more about it and thought of sharing this with you all.</p>
+<p>The six hats represent the 6 thinking patterns each aiming at looking at the problem with a different pair of glasses. Here I will share the technique along with an example to help you understand this concept better. It&apos;s mostly used in a group setting but you can apply this technique to almost anything. If it&#x2019;s done as a team activity, each person (or a sub group of people if the team is big) is given a hat and they are asked to <strong>think as per the HAT.</strong><br>
+Let&#x2019;s take an example and understand how to use it.<br>
+Suppose you want to open a fast-food store and let&#x2019;s see the how this approach goes.<br>
+<strong>The six hats are:</strong></p>
+<ol>
+<li>
+<p><strong>Blue Hat &quot;the Conductor&apos;s Hat&quot;</strong>: The Blue Hat represents strategic and big-picture thinking. It is used to evaluate the overall goals and objectives, and to determine the best course of action. Do you want to open a single store or you want to build the next fast-food giant? Having a clear big picture in mind helps to make the baby steps needed to achieve your big goals.</p>
+</li>
+<li>
+<p><strong>White Hat &#x201C;The Factual Hat&#x201D;</strong>: The White Hat represents objective, neutral thinking. It is used to gather information, identify facts and data, and analyze the problem. What will be your specialty? What will be your menu? What should be your pricing?</p>
+</li>
+<li>
+<p><strong>Red Hat &#x201C;&quot;the Hat for the Heart&quot;&#x201D;</strong>: The Red Hat represents emotions and intuition. It allows individuals to express their feelings and gut instincts about a problem or decision. What if people don&#x2019;t like the taste of your food? What will your family and friends think if you fail?</p>
+</li>
+<li>
+<p><strong>Black Hat &#x201C;The Judge&apos;s Hat&#x201D;</strong>: The Black Hat represents critical and negative thinking. It is used to identify potential problems and risks, and to evaluate the feasibility of different options. Do you have existing competition nearby your premise? What if your plan fails, do you have an emergency fund?</p>
+</li>
+<li>
+<p><strong>Yellow Hat &#x201C;the Optimist&apos;s Hat&#x201D;</strong>: The Yellow Hat represents positive and constructive thinking. It is used to generate ideas, identify opportunities, and evaluate the benefits of different options. How can your outlet standout from others? Why people will choose your brand over other restaurants?</p>
+</li>
+<li>
+<p><strong>Green Hat &#x201C;the Creative Hat&#x201D;</strong>: The Green Hat represents creative and innovative thinking. It is used to generate new ideas and explore different possibilities. What interesting offers you can give to attract more sales? Can you start any food challenges ?</p>
+</li>
+</ol>
+<p>By using the 6 Thinking Hats technique, individuals and groups are able to approach a problem or decision from multiple perspectives, rather than getting stuck in one way of thinking. It allows for more comprehensive problem solving and decision making, and can increase the chances of a successful outcome.<br>
+Thankyou For Reading :smile:</p>
+]]></content:encoded></item><item><title><![CDATA[RaspberryPi PICO and PYUSB: Unlocking the Power of Custom USB Endpoints]]></title><description><![CDATA[Communicating between HOST and RP Pico using custom USB Endpoints and python!]]></description><link>http://localhost:2368/raspberrypi-pico-and-pyusb--unlocking-the-power-of-custom-usb-endpoints/</link><guid isPermaLink="false">655f1bf2624c4c427cb2935f</guid><category><![CDATA[python]]></category><category><![CDATA[pyusb]]></category><category><![CDATA[RP Pico]]></category><dc:creator><![CDATA[Shekhar Verma]]></dc:creator><pubDate>Thu, 23 Nov 2023 09:31:30 GMT</pubDate><media:content url="http://localhost:2368/content/images/2023/11/pico-rp2040.webp" medium="image"/><content:encoded><![CDATA[<h2 id="introduction">Introduction</h2>
+<img src="http://localhost:2368/content/images/2023/11/pico-rp2040.webp" alt="RaspberryPi PICO and PYUSB: Unlocking the Power of Custom USB Endpoints"><p>The RP2040 is a microcontroller developed by raspberry pi that has opened up a world of possibilities for DIY electronics enthusiasts. With its built-in USB 2.0 support, the RP2040 can function as a FULL SPEED (12Mbps)<br>
+Device as well as a LOW SPEED (1.5Mbps) and FULL SPEED host. In this blog post, we&apos;ll explore custom USB endpoints and how you can use them to create your own custom USB devices.</p>
+<p>Before diving deep into the topic, let me give you a brief idea what is USB and how it works. We all know what a USB connector looks like and we use at least one USB device daily. USB stands for Universal Serial Bus. It is a standard interface used to connect various devices to a computer or other host devices. It was developed in the mid-1990s, and it has since become one of the most widely used methods for connecting peripherals to computers.<br>
+USB allows devices to be connected to a computer without requiring specialized hardware or software. It is a plug-and-play interface, meaning that devices can be connected and disconnected from a computer without needing to restart the computer (Referred to as HOST). The HOST is responsible for all the communication and the device cannot communicate anything on its own.<br>
+When a device(For Ex Mouse, keyboard, Printer) gets connected to the HOST (Computer) the HOST communicates with the device to know its capabilities through Device Descriptors and configuration descriptors. Once the HOST knows what the device is, it starts communicating with it with the help of device drivers.</p>
+<h2 id="types-of-usb-transfer">Types of USB Transfer</h2>
+<ol>
+<li>Control Transfer - It is used to set and get USB configurations, set device address and other settings. All USB Devices must support Control Transfers.</li>
+<li>Isochronous Transfer - This transfer is used when the data bandwidth required is high and error correction is not important. For Ex- Streaming audio and video</li>
+<li>Interrupt Transfer - This transfer works by polling. It Polls the device periodically for any data. Keyboard and mouse use this transfer to report key strokes and movements.</li>
+<li>Bulk Transfer - This transfer provides reliable data transfer but the bandwidth is not guaranteed every time. This is typically used for printers and scanners etc.</li>
+</ol>
+<p>If you want to get more detail of how everything works I highly recommend you to check out <a href="https://www.usbmadesimple.co.uk/?ref=localhost">USB Made Simple</a>.</p>
+<h2 id="what-we-will-be-doing">What we will be doing?</h2>
+<p>In this blog I will be showing you how I created a composite USB device which can act as a USB keyboard and a custom Endpoint for communication and transferring data.</p>
+<p>The Device structure is shown below. Here we have 1 configuration and 2 interfaces for the device (RP pico in our case).</p>
+<ol>
+<li>Interface for a HID device (<strong>H</strong>uman <strong>I</strong>nterface <strong>D</strong>evice), in our case it will be a Keyboard.<br>
+Learn more about HID Devices <a href="https://en.wikipedia.org/wiki/USB_human_interface_device_class?ref=localhost">here</a>.</li>
+<li>Interface for our custom Bulk Transfer End points, which we will use to transfer data from host to device.(To Control the on Board LED which you will see later).</li>
+</ol>
+<pre><code class="language-text">Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               2.00
+  bDeviceClass            0 
+  bDeviceSubClass         0 
+  bDeviceProtocol         0 
+  bMaxPacketSize0        64
+  idVendor           0xcafe 
+  idProduct          0x4014 // Vendor ID and Product ID pair is used to identify a device to load suitable drivers.
+  bcdDevice            1.00
+  iManufacturer           1 Raspberry Pi 
+  iProduct                2 RP2040
+  iSerial                 3 001
+  bNumConfigurations      1 //our device only has one Configuration
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength       0x0039
+    bNumInterfaces          2 //2 Interfaces, one for the HID keyboard and other for our custom endpoints
+    bConfigurationValue     1
+    iConfiguration          4 
+    bmAttributes         0xa0
+      (Bus Powered)
+      Remote Wakeup
+    MaxPower              100mA //max current limit for our device USB2.0 supports uto 500mA
+    Interface Descriptor:  //This is the Interface for HID keyboard
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           1
+      bInterfaceClass         3 Human Interface Device
+      bInterfaceSubClass      0 
+      bInterfaceProtocol      0 
+      iInterface              5 
+        HID Device Descriptor:
+          bLength                 9
+          bDescriptorType        33
+          bcdHID               1.11
+          bCountryCode            0 Not supported
+          bNumDescriptors         1
+          bDescriptorType        34 Report
+          wDescriptorLength     239
+         Report Descriptors: 
+           ** UNAVAILABLE **
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0010  1x 16 bytes
+        bInterval               5
+    Interface Descriptor: //This is the Interface for our custom endpoints (for contolling the LED in this example)
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        1
+      bAlternateSetting       0
+      bNumEndpoints           2
+      bInterfaceClass       255 Vendor Specific Class
+      bInterfaceSubClass      0 
+      bInterfaceProtocol      0 
+      iInterface              6 
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x03  EP 3 OUT
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x83  EP 3 IN
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               0
+</code></pre>
+<p>I have used <strong>lsusb</strong> in ubuntu to see device descriptors. You can also use <a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/usbview?ref=localhost">USBView</a> on windows to do the same.</p>
+<p>You can think of interfaces as functions (or a group of functions) which a device performs and endpoints as a dedicated channel or stream of data between host and device. (This is just to give you an idea)<br>
+USB2.0 Support 16 Endpoints (From 0 to 15) out of which Endpoint 0 is reserved (For device configuration and setup). Each Endpoint can be configured to act as a IN or OUT endpoint.<br>
+The direction of Endpoints are always from the perspective of the HOST.<br>
+<strong>IN</strong> means Data Transfer from device to HOST<br>
+<strong>OUT</strong> means Data Transfer from HOST to device</p>
+<p>In our configuration we have used 1 IN endpoint for Keyboard (To send Keystrokes to the HOST), 1 IN Bulk endpoint to send data from device to HOST and 1 OUT Endpoint to send data from Host to device.</p>
+<p>{{&lt; image src=&quot;infographic.png&quot; alt=&quot;infographic&quot;&gt;}}</p>
+<p>You can find the entire project code here <a href="https://github.com/shekhuverma/Pyusb-RP-PICO?ref=localhost">Pyusb-RP-PICO</a>.</p>
+<h2 id="results">Results</h2>
+<p>&#xA0;&#xA0;**1. Sending character &quot;A&quot; to the HOST **<br>
+&#xA0;&#xA0;Pressing Button on the RaspberryPi Pico<br>
+&#xA0;&#xA0;{{&lt; image src=&quot;Pressing_button.gif&quot; alt=&quot;Demo&quot;&gt;}}</p>
+<p>&#xA0;&#xA0;**Result **<br>
+&#xA0;&#xA0;{{&lt; image src=&quot;typing_a.gif&quot; alt=&quot;Demo&quot;&gt;}}<br>
+&#xA0;&#xA0;</p>
+<p>&#xA0;&#xA0;<strong>2. Sending Data</strong><br>
+&#xA0;&#xA0;The HOST Program is controlling the on Board LED.<br>
+&#xA0;&#xA0;&#xA0;{{&lt; image src=&quot;led_blink.gif&quot; alt=&quot;Demo&quot;&gt;}}</p>
+<!-- Ubuntu 22.04.1 LTS -->
+<p>For Further Reading you can Refer these:-</p>
+<ol>
+<li><a href="https://github.com/shekhuverma/Pyusb-RP-PICO?ref=localhost">Pyusb-RP-PICO Github Repo</a></li>
+<li><a href="https://www.usbmadesimple.co.uk/?ref=localhost">USB Made Simple</a></li>
+<li><a href="https://www.raspberrypi.com/products/raspberry-pi-pico/?ref=localhost">Raspberry Pi Pico</a></li>
+<li><a href="http://janaxelson.com/usbc.htm?ref=localhost">USB Compelte 5th Edition</a></li>
+<li><a href="https://github.com/pyusb/pyusb?ref=localhost">pyusb</a></li>
+<li><a href="https://github.com/hathach/tinyusb?ref=localhost">tinyusb</a></li>
+</ol>
+<p>Thankyou for reading! :smile:</p>
+]]></content:encoded></item><item><title><![CDATA[Why I Started this blog?]]></title><description><![CDATA[Why I Started a blog and why you should too!]]></description><link>http://localhost:2368/why-i-started-this-blog-/</link><guid isPermaLink="false">655f1bf2624c4c427cb29361</guid><dc:creator><![CDATA[Shekhar Verma]]></dc:creator><pubDate>Thu, 23 Nov 2023 09:31:30 GMT</pubDate><media:content url="http://localhost:2368/content/images/2023/11/why.jpg" medium="image"/><content:encoded><![CDATA[<hr>
+<h2 id="who-am-i">Who am I?</h2>
+<img src="http://localhost:2368/content/images/2023/11/why.jpg" alt="Why I Started this blog?"><p>Before starting with the &quot;why&quot; let me take a moment to introduce myself, My name is Shekhar Verma (yes, you guessed it right :laughing:).<br>
+I am an Electronics Engineer and I love to learn new things, create stuff and tinker with existing ones. I am currently Working as an Engineer<br>
+{{&lt; link href=&quot;<a href="https://www.inochihealthcare.com/?ref=localhost">https://www.inochihealthcare.com</a>&quot; content=@InochiCare &gt;}}</p>
+<hr>
+<h2 id="why-i-started-this-blog">Why I started this blog?</h2>
+<p>I used to see a lot of people on the internet creating content in all sort of forms, be it fancy high production Youtube video or an old school blog or even a twitter thread. Lots people are sharing their knowledge, experiences, skills and projects that they have made in their choice of content medium. I also wanted to try the same, but I was skeptical because of 2 main reasons.</p>
+<ol>
+<li>Why would anyone want to consume my content when there are a lot of people on the internet with much more technical expertise and experience than me.</li>
+<li>Lack of confidence :no_mouth:</li>
+</ol>
+<!-- end of the list -->
+<p>My perspective changed a little after a series of small-small incidents but the major impact was due to a Podcast that I listened (You can check that out <a href="https://open.spotify.com/episode/4AUI6seJp4sFjCYHheGV00?si=4UT3pGSGRLeolnfUbt7sUA&amp;ref=localhost">Here</a>). The Podcast&#x2019;s guest Sharan Hedge gave an analogy which stuck with me, and it goes like...</p>
+<p>Suppose you are on a jungle safari with your friends and you lost them due to any unforeseen circumstances (Maybe you ran :runner: away after seeing a bear :bear:).What will be your first impulsive reaction? You will shout, Scream with all your breath &amp; do all sort of things to grab anyone&apos;s attention so that you can be saved. You will do &#x201C;n&#x201D; number of things but one thing that you will never do is that you will not just sit around in the corner and &quot;EXPECT&quot; people to find you on their own.</p>
+<p>The world also works in a similar way, you might be knowing a ton of things, have a lot of skills and Experience but if you cannot present it to the world, then you will have a relatively hard time gaining benefit from your skills and talent. It is the ultimate truth and it took me a lot of time to realise this. You simply cannot wait for the opportunities to come your way, you have to constantly work in such a way that you create your own opportunities. Creating content about your work and about yourself is a wonderful way to do that.</p>
+<h3 id="it-brings-serendipity">It brings Serendipity</h3>
+<p>For those who don&#x2019;t know serendipity is nothing but &quot;LUCK&quot;. Creating content on the internet gives you exposure to a very large audience who might be interested in what you are doing and in this process you connect with strangers who can be your future clients or customers or even business partners.</p>
+<blockquote>
+<p>Each post is an advertisement for the kinds of people and opportunities you want to attract, and if you have a voice, you can build a platform.</p>
+</blockquote>
+<pre><code>Luck = [Doing Things] * [Telling People]
+</code></pre>
+<p>More things you do and more you tell about that, more lucky you get!!</p>
+<p><img src="http://localhost:2368/content/images/2023/11/LuckSurfaceArea.png" alt="Why I Started this blog?" loading="lazy"></p>
+<h3 id="auditioning-in-public">Auditioning in Public</h3>
+<p>I heard this one by a famous youtuber (<a href="https://www.youtube.com/@BBKiVines?ref=localhost">Bhuvan Bham</a>) who makes comedy sketches on social media. He said every piece of content that he puts out is a audition in public. He explains that it is very hard to reach people who are at a certain level (for example famous directors, film producers, etc.) So, every time he puts out content it&#x2019;s like a audition clip which will reach to those people through the power of social media and internet. This is not limited to acting but to almost every skill set.<br>
+<strong>For Ex -</strong> If you are a singer, you can upload song covers which may get viral and you eventually end up getting a gig or even an offer from a music company.<br>
+If you are a developer, you can create tutorials or write a blog which can reach out to a ton of people and someday you may get a job offer through it.</p>
+<h3 id="giving-back-to-the-internet">Giving back to the internet</h3>
+<p>We all have used internet to upskill ourselves in some way or to find solutions of our problems. Remember that bug in your code which led your project to a complete halt and a random guy from across the world on Stackoverflow helped to point out your silly mistake :sweat:. If you know something and if it can help even a single person on this planet then you should share that knowledge. You Learn more by sharing because you get instant feedback from the people that you share your knowledge with and it helps tremendously to see new dimensions, find your pitfalls and even get new Ideas. :bulb:</p>
+<h3 id="personal-branding">Personal Branding</h3>
+<p>In this age, whenever we see or hear about a thing that we haven&apos;t heard much before, what is the first thing that we do? We &quot;GOOGLE it &quot;:iphone: .If we are able to get some information on the first few search results about any Brand, Person or even a company we are convinced that this entity is somewhat legit. If People can find you on the internet and see your work they build a trust on you. It improves credibility and open a world of new opportunities for you. If you want to stand out from the rest you have to standout on the internet. :web:</p>
+<h2 id="closing-notes">Closing Notes</h2>
+<p>So with all the positives in mind I am going to document anything that I build, I learn and Share things which helped me or I found interesting.</p>
+<p>Thankyou For Reading! :smile:</p>
+<p>For Further Reading you can refer these:-</p>
+<ol>
+<li><a href="https://www.youtube.com/watch?v=vyVpRiqOvt4&amp;t=404s&amp;ab_channel=AliAbdaal&amp;ref=localhost">Ali Abdaal</a></li>
+<li><a href="https://www.youtube.com/watch?v=IMHLGdynNOM&amp;t=3093s&amp;ab_channel=DavidPerell&amp;ref=localhost">David Perell</a></li>
+<li><a href="https://www.youtube.com/watch?v=dVoq5vjNI1Y&amp;ab_channel=IshanSharma&amp;ref=localhost">Ishan Sharma &amp; Kunal Kushwaha</a></li>
+<li><a href="https://www.swyx.io/learn-in-public/?ref=localhost">Shawn @swyx Wang</a></li>
+</ol>
+]]></content:encoded></item><item><title><![CDATA[MIPI-DSI on i.MXRT 1060/1070]]></title><description><![CDATA[<p>Hello everyone, this is going to be a 2 part series in which I am going to explain you about MIPI-DSI, how it works and how to use it on NXP i.MXRT1160/1170 crossover MCUs.</p>
+<h2 id="what-is-mipi-dsi">What is MIPI-DSI?</h2>
+<p><strong>MIPI DSI</strong> (<strong>M</strong>obile <strong>I</strong>ndustry <strong>P</strong>rocessor <strong>I</strong>nterface <strong>D</strong></p>]]></description><link>http://localhost:2368/mipi-dsi-on-i-mxrt-1060-1070/</link><guid isPermaLink="false">655f1bf2624c4c427cb2935c</guid><category><![CDATA[MIPI-DSI]]></category><category><![CDATA[i.MXRT]]></category><category><![CDATA[LCD]]></category><dc:creator><![CDATA[Shekhar Verma]]></dc:creator><pubDate>Thu, 23 Nov 2023 09:31:30 GMT</pubDate><content:encoded><![CDATA[<p>Hello everyone, this is going to be a 2 part series in which I am going to explain you about MIPI-DSI, how it works and how to use it on NXP i.MXRT1160/1170 crossover MCUs.</p>
+<h2 id="what-is-mipi-dsi">What is MIPI-DSI?</h2>
+<p><strong>MIPI DSI</strong> (<strong>M</strong>obile <strong>I</strong>ndustry <strong>P</strong>rocessor <strong>I</strong>nterface <strong>D</strong>isplay <strong>S</strong>erial <strong>I</strong>nterface) is a high-speed interface standard for connecting a display to a mobile device or embedded system. Developed by the MIPI Alliance (Formed by ARM, Nokia, ST and TI in 2003, Intel, Motorola, Samsung and Philips joined within a year), a global organization dedicated to developing interface specifications for mobile and mobile-influenced industries. MIPI DSI is designed to support the display needs of smartphones, tablets, laptops, and other portable devices. DSI only specifies a set of commands, data serialisation and packetization schemes. This packet-based approach allows for a more efficient use of bandwidth and power, making it ideal for mobile applications. The use of MIPI DSI is not limited to mobile devices, it has also been adopted in embedded systems, such as Internet of Things (IoT) devices, automotive displays and industrial displays. It <strong>does not</strong> define any actual electrical specifications, physical layer or a connector standard (like HDMI and USB). The actual electrical specifications are defined by a PHY (short for physical layer). NXP i.MXRT 1160 uses D-PHY , here D stands for Roman numerical 500 and it denotes the maximum speed of 500 mbits/sec per lane. There are other types of PHYs as well such as C-PHY, A-PHY, etc.<br>
+Now that we have some idea about what is DSI, let&#x2019;s discuss about what it&#x2019;s not.</p>
+<ol>
+<li>It&apos;s not a plug and Play system like HDMI or USB. It requires a specific configuration and initialization sequence to operate.</li>
+<li>It&apos;s meant for short distance communication only as it was designed for portable and hand-held devices. Max length is only 25-30 Cm.</li>
+<li>It&apos;s is not designed to interface multiples devices at same time (Unlike SPI, I2C).</li>
+</ol>
+<h2 id="how-modern-displays-work">How Modern Displays work?</h2>
+<p>Before diving into how MIPI-DSI works we need to understand some basic terminology. All modern-day display signaling is inspired from the old day CRTs (:tv: yes those old beefy televisons). Most modern day displays uses the same raster scan technique to produce images on the screen. You can learn more about this <a href="https://www.youtube.com/watch?v=r38nVmxBfvM&amp;ab_channel=DanaLee&amp;ref=localhost">here</a>. This displayed image is often referred to as a Frame. Pixels are located relative to their time from the vertical and horizontal sync signals. The display process repeats itself for the next frame, and the next frame, etc&#x2026; The film/video world define this timing interval at which a new frame is displayed is as Frames per Second (FPS).</p>
+<h3 id="basic-concepts">Basic concepts</h3>
+<p><strong>Horizontal Blanking Interval</strong> &#x2013; When the electron beam is steered from left to right to start a new horizontal line is called horizontal retrace and the time it takes to do this process is called horizontal blanking interval.<br>
+It consists of 3 parts.</p>
+<pre><code>Horizontal Blanking Interval = Horizontal Front Poarch + Horizontal Sync Width + Horizontal Back Poarch
+</code></pre>
+<p><strong>Horizontal Front Poarch</strong> = Time it takes to switch of the electron beam and turn it around.<br>
+<strong>Horizontal Sync Width</strong> = Time it takes to Steer the electron beam from Left to right side.<br>
+<strong>Horizontal Back Poarch</strong> = Time it takes to stabilize the electron beam before starting up the new line.<br>
+Similarly, we have vertical blanking interval and we have,<br>
+<strong>Vertical Blanking Interval</strong> &#x2013; When the electron beam is steered from bottom left to top right, i.e from the end line of the frame to first line of the next frame to start a new frame is called vertical retrace and the time it takes in this process is called vertical blanking interval.<br>
+It also consists of 3 parts.</p>
+<pre><code>Vertical Blanking Interval = Vertical Front Poarch + Vertical Sync Width + Vertical Back Poarch
+</code></pre>
+<p><strong>Pixel Clock</strong> is defined as</p>
+<pre><code>Pixel Clock = (Frame Height + Vertical Front Poarch + Vertical Sync Width + Vertical Back Poarch) x ( Frame Width Vertical Front Poarch + Vertical Sync Width + Vertical Back Poarch) x FPS.
+</code></pre>
+<p>so control a digital display we need at least 24 signal lanes(8 signal lane per channel for RGB),1 Hsync, 1 Vsync, 1 Pclk and 1 Data Enable, therefore a bare minimum of 28 signal lanes or pins for transmission of data. DSI takes all these parallel signals and converts them into a serialised packet data which can be sent at high speeds using only 6 lanes(2 for clk and 4 for 2 differential data pairs).It saves space on PCB and improves EMI/EMC characteristics of the product.<br>
+{{&lt; image src=&quot;image1.png&quot; alt=&quot;Frame timings&quot;&gt;}}</p>
+<h2 id="dsi-lanes">DSI Lanes</h2>
+<p>DSI takes RGB Parallel bus and serialize all the pixel data, commands and events into data packets. It uses DDR to transmit data, which means data is transmitted at both rising clock edge as well as falling clock edge<br>
+DSI used Differential pairs lanes to communicate between host and LCD.<br>
+We have CLOCK &#x2013; Unidirectional Differential pair clock signal<br>
+DATA LANE 0 - Bidirectional Differential pair data lane.<br>
+DATA LANE n -Unidirectional Differential pair data lane (From host to LCD only)<br>
+<strong>There can be only 4 Data lanes at max.</strong></p>
+<h3 id="power-modes">Power Modes</h3>
+<ol>
+<li>Low power Mode (LP) &#x2013; All the Lanes become signal ended and non-terminated and this mode is only used to transmit commands. It uses traditional single ended CMOS IO buffers and works at 0 to 1.2V logic level.</li>
+<li>High Speed Mode (HS) &#x2013; It used low voltage differential signaling with 50 Ohm tracks and 100 Ohms termination and this mode is only used to transmit commands. It is used to transmit high speed pixel data.</li>
+</ol>
+<!-- end of the list -->
+<p>There is also a ultra-low power mode or ULPM.</p>
+<h3 id="important-points">Important points</h3>
+<ol>
+<li>Clock Lane goes from LP mode to HS mode before any data lane.</li>
+<li>All data lanes go from Low Speed mode to high speed together.</li>
+<li>After the transmission in HS Mode all lanes go back to low power mode.</li>
+<li>Clk has the option to stay in HS mode for the entire duration and it is called continuous clock mode. It generally depends on the LCD controller used.</li>
+<li>When shifting from HS mode to LP mode, Data lanes shifts before Clk lanes.</li>
+</ol>
+<!-- end of the list -->
+<p>{{&lt; raw &gt;}}<br>
+[HS \space bit \space clk = \frac{(Pixel \space clk * bits \space per \space pixel)}{No. \space of \space DSI \space LANES} * \frac{9}{8}]<br>
+{{&lt; /raw&gt;}}</p>
+<p>Here constant 9/8 = 1.125 = DSI overhead and we keep the clock frequency slightly up to accommodate for this.</p>
+<h2 id="modes-of-operation">Modes of operation</h2>
+<ol>
+<li>
+<p><strong>Command Mode</strong><br>
+Command Mode refers to operation in which transactions primarily take the form of sending commands and data to a display module, that incorporates a display controller.The display controller may include local registers and a frame buffer. Systems using Command Mode write to, and read from, the registers and frame buffer memory.</p>
+</li>
+<li>
+<p><strong>Video Mode Operation</strong><br>
+Video Mode refers to operation in which transfers from the host processor to the peripheral take the form of a real-time pixel stream. In normal operation, the display module relies on the host processor to provide image data at sufficient bandwidth to avoid flicker or other visible artifacts in the displayed image. Video information should only be transmitted using High Speed Mode.</p>
+</li>
+</ol>
+<p>{{&lt; image src=&quot;video_command_mode.png&quot; alt=&quot;Video Mode vs command mode&quot; caption=&quot;<a href="https://www.nxp.com/docs/en/application-note/AN12940.pdf?ref=localhost">Video Mode vs Command Mode</a>&quot;&gt;}}</p>
+<h2 id="dsi-packets">DSI Packets</h2>
+<p>DSI has 2 types of packets Short Type and Long type.</p>
+<ol>
+<li>Short Packets &#x2013; They are 4 bytes long and can be transmitted in either LP mode or HS mode. They are generally used to transfer commands.<br>
+When transmitting Display Commands Set (DCS) the Data0 becomes the DSI Register Address and rest of the Data packets becomes the Payload or argument. DATA0 is always the display command in both Short Packet and Long Packet.</li>
+</ol>
+<p>{{&lt; image src=&quot;image2.png&quot; alt=&quot;DSI Short Packet Structure&quot;&gt;}}</p>
+<ol start="2">
+<li>Long Packets &#x2013; They can be 4 to 65541 bytes long and can only be transmitted in HS mode. They are generally used to transmit Pixel data but also for commands which are more than 4 bytes long.</li>
+</ol>
+<p>{{&lt; image src=&quot;image3.png&quot; alt=&quot;DSI Long Packet Structure&quot;&gt;}}</p>
+<!-- end of the list --> 
+<p>Here LP-11 on both the ends refers to low Power stop state where all the data and clock pins are at low power high level (1.2V).<br>
+To Read more about the Power state changes please refer to <a href="https://www.nxp.com/webapp/Download?colCode=TP-UNDERSTANDING-MPI-DSI-CSI-2-DPHY-INTERFACES&amp;ref=localhost">this</a>.<br>
+When transmitting Display Commands Set (DCS) the Data0 becomes the DSI Register Address and rest of the Data packets becomes the Payload or argument. For commands with no payload or parameter , data1 is always 0x00H. (For ex - SWRESET (01h),  ALLPOFF (22h), SLPIN (10h),  ALLPON (23h), SLPOUT (11h)).</p>
+<p>For example if sending ALLPOFF command, the packet data will look like.</p>
+<pre><code>Data0-22H 
+Data1-0xHH 
+</code></pre>
+<p>In the next part I am going to show you how to do LCD bring Up in i.MX RT 1160 or any NXP MCU which has MIPI-DSI support.<br>
+Thankyou For Reading! :smile:</p>
+<p>For Further Reading you can refer these:-</p>
+<ol>
+<li><a href="https://www.youtube.com/watch?v=r38nVmxBfvM&amp;ab_channel=DanaLee&amp;ref=localhost">How Analog Video Works</a></li>
+<li><a href="https://www.nxp.com/design/training/understanding-the-mipi-dsi-csi-2-and-d-phy-interfaces:TIP-UNDERSTANDING-MPI-DSI-CSI-2-DPHY-INTERFACES?ref=localhost">NXP&apos;s Webinar</a></li>
+<li><a href="https://www.nxp.com/docs/en/application-note/AN12940.pdf?ref=localhost">AN12940</a></li>
+<li><a href="https://studfile.net/preview/1645839/?ref=localhost">https://studfile.net/preview/1645839/</a></li>
+</ol>
+]]></content:encoded></item><item><title><![CDATA[Integrating payment Webhooks with FastAPI in Python! - 2]]></title><description><![CDATA[How to create to your Webhook endpoint in FastAPI and save the data in a database.]]></description><link>http://localhost:2368/integrating-payment-webhooks-with-fastapi-in-python----2/</link><guid isPermaLink="false">655f1bf2624c4c427cb2935e</guid><category><![CDATA[FastAPI]]></category><category><![CDATA[Python]]></category><dc:creator><![CDATA[Shekhar Verma]]></dc:creator><pubDate>Thu, 23 Nov 2023 09:31:30 GMT</pubDate><media:content url="http://localhost:2368/content/images/2023/11/cover_image.jpg" medium="image"/><content:encoded><![CDATA[<!--more-->
+<img src="http://localhost:2368/content/images/2023/11/cover_image.jpg" alt="Integrating payment Webhooks with FastAPI in Python! - 2"><p>In the previous post, we saw how to create endpoints to receive webhooks using FastAPI in Python. We created a simple FastAPI App to receive the data whenever a payment is made on Razorpay. If you haven&#x2019;t read that post Check that out <a href="https://shekharverma.com/posts/payment_webhooks_fastapi_1/?ref=localhost">here</a> before proceeding further.</p>
+<p>In this post, we are going one step further. We are going to:-</p>
+<ol>
+<li>Create Schemas and Validate our data using Pydantic</li>
+<li>Connect our FastAPI app with a Postgres Database</li>
+<li>Save the webhook data in the database.</li>
+</ol>
+<p>So let&#x2019;s jump in</p>
+<h2 id="pydantic">Pydantic</h2>
+<p>Pydantic is a data validation and parsing library in Python which Leverages Python&#x2019;s Type Hinting. It is being used extensively in FastAPI because it has built-in JSON encoding and decoding support.</p>
+<p>Some benefits of using Pydantic :</p>
+<ul>
+<li>Integrates extremely well with all major IDEs.</li>
+<li>Easy Data validation and Error Handling</li>
+<li>Extremely fast because it is built on RUST</li>
+</ul>
+<h4 id="how-does-pydantic-work">How Does Pydantic work?</h4>
+<p>It basically allows users to create data models using Python classes. These classes inherits from BaseModel class in Pydantic. It can include typehints, Default Values and validation rules.<br>
+Whenever we create an instance of this data model, Pydantic checks all the fields with their respective data types and validation rules. If the data does not meet the requirements, it raises an error otherwise populates the data model with the data and returns the class instance.</p>
+<p>Let&#x2019;s install Pydantic</p>
+<pre><code>pip install pydantic
+</code></pre>
+<p>Let&#x2019;s start with a very basic example</p>
+<pre><code class="language-py">from pydantic import BaseModel
+
+class dog(BaseModel):
+    name: str
+    age: int
+
+dog1 = dog(name=&quot;Joey&quot;, age=3)
+print(dog1)
+</code></pre>
+<h5 id="output">Output</h5>
+<pre><code>name=&apos;Joey&apos; age=3
+</code></pre>
+<pre><code class="language-py">from pydantic import BaseModel
+
+class dog(BaseModel):
+    name: str
+    age: int
+
+dog1 = dog(name=&quot;Joey&quot;, age=&quot;3&quot;)
+print(dog1)
+print(type(dog1.age))
+</code></pre>
+<h5 id="output">Output</h5>
+<pre><code>name=&apos;Joey&apos; age=3
+&lt;class &apos;int&apos;&gt;
+</code></pre>
+<p>As you can see in the example above, it automatically converted the <strong>string &#x201C;3&#x201D;</strong> to <strong>integer 3.</strong></p>
+<p>Let&#x2019;s look at another example</p>
+<pre><code class="language-py">from pydantic import BaseModel
+
+class dog(BaseModel):
+    name: str
+    age: int
+
+dog1 = dog(name=&quot;Joey&quot;, age=&quot;Three&quot;)
+print(dog1)
+print(type(dog1.age))
+</code></pre>
+<h5 id="output">Output</h5>
+<pre><code class="language-py">    dog1 = dog(name=&quot;Joey&quot;, age=&quot;Three&quot;)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File &quot;pydantic\main.py&quot;, line 341, in pydantic.main.BaseModel.__init__
+pydantic.error_wrappers.ValidationError: 1 validation error for dog age
+value is not a valid integer (type=type_error.integer)
+</code></pre>
+<p><strong>Here it gave a validation error that the &#x201C;age&#x201D; is not a valid int.</strong></p>
+<h2 id="postgresql">PostgreSQL</h2>
+<p>PostgreSQL, also known as Postgres, is a robust and feature-rich open-source relational database management system (RDBMS). It offers advanced functionality, scalability, and reliability, making it a preferred choice for many businesses and developers worldwide.</p>
+<h3 id="installing-postgresql">Installing PostgreSQL</h3>
+<p>It&#x2019;s a very simple process, you can find all the details <a href="https://www.postgresqltutorial.com/postgresql-getting-started/install-postgresql/?ref=localhost">here</a>.</p>
+<h3 id="creating-a-database">Creating a Database</h3>
+<p>Now we will create a Test database inside postgres so that we can store our data in it.</p>
+<p><strong>Follow these steps</strong></p>
+<ol>
+<li>Open PG Admin, it&#x2019;s a utility that will get installed automatically by deafult.</li>
+</ol>
+<p>{{&lt; image src=&quot;pg_admin.png&quot; alt=&quot;PGAdmin interface&quot; &gt;}}</p>
+<ol start="2">
+<li>Object -&gt; Register Server,  Enter any name you like (in my case I am using &#x201C;Learning FastAPI&#x201D;).</li>
+</ol>
+<p><em>Enter Other details as follows :-</em></p>
+<p>Host name = As we are currently deploying only on our local machine we will use localhost<br>
+Username = postgres (let&#x2019;s keep it default for now)<br>
+Password = Enter the password you choose when installing the software</p>
+<p>{{&lt; image src=&quot;image2.png&quot; alt=&quot;PGAdmin setting 1&quot; width=&quot;400&quot;&gt;}}<br>
+{{&lt; image src=&quot;image3.png&quot; alt=&quot;PGAdmin setting 2&quot; width=&quot;400&quot;&gt;}}</p>
+<ol start="3">
+<li>Click on save.</li>
+</ol>
+<!-- {{< image src="image4.png" alt="PGAdmin interface">}} -->
+<ol start="4">
+<li>Now right click on database -&gt; Create -&gt; Database-&gt; Enter database Name -&gt; Save</li>
+</ol>
+<p>{{&lt; image src=&quot;image5.png&quot; alt=&quot;Creating Database in postgres&quot; &gt;}}</p>
+<p><strong>Now we have successfully created a database in PostgreSQL</strong></p>
+<h2 id="connecting-the-database-with-python">Connecting the database with Python</h2>
+<p>First let&#x2019;s install the libraries</p>
+<pre><code>pip install sqlalchemy
+Pip install psycopg2
+</code></pre>
+<p>Now to talk to our database we use something known as &#x201C;Object Relational Mapping&#x201D;.  Python does not support it by default so we are going to use a library called &#x201C;sqlalchemy&#x201D;.It basically converts(&#x201C;maps&#x201D;) Objects in code with relations in database.</p>
+<p>We create a class in python which represents a table in database and each attribute of class representing a column and its data type. Now whenever we will create a new Object of this class, it will represent a row in the database.</p>
+<p>The Sqlalchemy only provided the ORM capability , it does not talk to the database directly. To connect it with the database we actually need a database driver/adapter library that is specifc for the database to be used.</p>
+<p>As we are using postgresql, we are using <em>psycopg2</em> as our driver</p>
+<p>Let&#x2019;s jump into the code</p>
+<pre><code class="language-python">from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy import Column, Integer, String, FLOAT
+
+# This is the potgres server URL
+SQLALCHEMY_DATABASE_URL = &quot;postgresql://postgres:&lt;password&gt;@localhost:5432/Razorpay&quot;
+
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
+
+# Each instance of SessionLocal class will be a database session
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+Base = declarative_base()
+
+class Users(Base):
+    __tablename__ = &quot;users&quot;
+
+    id = Column(Integer, primary_key=True, index=True)
+    txid = Column(String, unique=True)
+    amount = Column(FLOAT)
+    email_id = Column(String)
+    contact_no = Column(String)
+
+# This creates a table named &quot;Users&quot; in the database
+def create_table():
+    return Base.metadata.create_all(bind=engine)
+
+create_table()
+
+</code></pre>
+<p>This code creates a table named &#x201C;users&#x201D; in our database newly created database.<br>
+SQLALCHEMY_DATABASE_URL is the URL on which points to our database and has the following format.</p>
+<p><em>postgresql://[user[:password]@][netloc][:port][/dbname]</em></p>
+<pre><code class="language-python">class Users(Base):
+    __tablename__ = &quot;users&quot;
+
+    id = Column(Integer, primary_key=True, index=True)
+    txid = Column(String, unique=True)
+    amount = Column(FLOAT)
+    email_id = Column(String)
+    contact_no = Column(String)
+</code></pre>
+<p>This class defines the schema for the Users table, it defines the column names and their data types.<br>
+The id column is the index column, it gets incremented every time we make a new entry to the database.</p>
+<p>Let&apos;s Run this code</p>
+<p>Now if we see in Pg admin, we can see our newly created table with all the defined columns.</p>
+<p>{{&lt; image src=&quot;image6.png&quot; alt=&quot;Creating data columns in postgres&quot; &gt;}}</p>
+<h2 id="defining-schema">Defining Schema</h2>
+<p>Now that we know the basics and everything is working, let&#x2019;s integrate everything into FastAPI.</p>
+<p>Firstly we need to define a Pydantic model to receive the incoming data from Razorpay.</p>
+<p>If you go to this <a href="https://razorpay.com/docs/webhooks/payloads/payments/?ref=localhost">Razorpay Docs</a>, it clearly describes the JSON payload format in which Razorpay sends the data to the webhook. Right now we are only concerned about the payment captured format to check for successful payment.Now we have to convert this JSON to a Pydantic model for easy data parsing and validation.</p>
+<p><em>We have 2 options</em></p>
+<ol>
+<li>Manually create the Pydantic model using JSON</li>
+<li>Use a automated tool to do this for us.</li>
+</ol>
+<p>Offcourse we are going with the 2nd option :satisfied:</p>
+<p>We are going to use this tool <a href="https://jsontopydantic.com/?ref=localhost">Jsontopydantic</a>, just copy paste the JSON on the left section and it will create Pydantic Model for us.</p>
+<p>This is our Pydantic model , save this file as schemas.py</p>
+<pre><code class="language-py">#schemas.py
+from pydantic import BaseModel
+from typing import Any
+
+class AcquirerData(BaseModel):
+    rrn: str | None
+
+class Upi(BaseModel):
+    payer_account_type: str
+    vpa: str
+
+class Entity (BaseModel):
+    id: str
+    entity: str
+    amount: int
+    currency: str
+    status: str
+    order_id: str
+    invoice_id: Any
+    international: bool
+    method: str
+    amount_refunded: int
+    refund_status: Any
+    captured: bool
+    description: Any
+    card_id: Any
+    bank: Any
+    wallet: Any
+    vpa: str | None
+    email: str
+    contact: str
+    notes: dict
+    fee: Any
+    tax: Any
+    error_code: Any
+    error_description: Any
+    error_source: Any
+    error_step: Any
+    error_reason: Any
+    acquirer_data: AcquirerData
+    created_at: int
+    upi: Upi | None = None
+
+class Payment(BaseModel):
+    entity: Entity
+
+class Payload(BaseModel):
+    payment: Payment
+
+class Model(BaseModel):
+    entity: str
+    account_id: str
+    event: str
+    contains: list
+    payload: Payload
+    created_at: int
+
+</code></pre>
+<p>We have defined the paydantic models or schema for incoming data from razorpay but we have to do the same for saving the data into database</p>
+<p>Add the following Pydantic models to schemas.py</p>
+<pre><code class="language-py">class BaseUser(BaseModel):
+    txid: str
+    amount: float
+    email_id: str
+    contact_no: str
+
+class User(BaseUser):
+    id: int
+
+    class Config:
+        orm_mode = True
+</code></pre>
+<p>Pydantic&apos;s orm_mode will tell the Pydantic model to read the data even if it is not a dict, but an ORM model (or any other arbitrary object with attributes).</p>
+<p>This way, instead of only trying to get the id value from a dict, as in:</p>
+<pre><code>  id = data[&quot;id&quot;]
+</code></pre>
+<p>it will also try to get it from an attribute, as in:</p>
+<pre><code>  id = data.id
+</code></pre>
+<p>And with this, the Pydantic model is compatible with ORMs, and you can just declare it in the response_model argument in your path operations.</p>
+<h2 id="changing-the-webhook-endpoint">Changing the Webhook Endpoint</h2>
+<p>We have to change the endpoint which we created earlier to include pydantic model</p>
+<pre><code class="language-python">@app.post(&quot;/webhook&quot;)
+async def receive_webhook(
+    request: Request,
+    RP_reponse: Model,
+):
+    print(RP_reponse)
+</code></pre>
+<p>Here RP_response if of type Model, which is our Pydantic model</p>
+<p>Let&#x2019;s test this out, run the uvicorn server and go to <strong><a href="http://127.0.0.1/docs?ref=localhost">http://127.0.0.1/docs</a></strong></p>
+<ol>
+<li>
+<p>Click on the webhook endpoint and click &#x201C;Try it out&#x201D; on the right hand side.</p>
+</li>
+<li>
+<p>In the request body , copy paste the Example JSON payload (Sasme that we used to generate the Pydantic Model to see whether our endpoint is working correctly or not <a href="#defining-schema">here</a>)</p>
+</li>
+<li>
+<p>Hit on Excecute button.</p>
+</li>
+</ol>
+<p>Upon executing we can see that we have received the data in our print statement.</p>
+<p>{{&lt; image src=&quot;image7.png&quot; alt=&quot;Razorpay test payment page&quot; &gt;}}</p>
+<p><strong>Quick Tip  :</strong> You can use the docs to quick test all your endpoints, it is really useful when building a complex app.</p>
+<h2 id="saving-the-data-in-database">Saving the data in Database</h2>
+<p>Now let&#x2019;s save the data into database :grimacing:</p>
+<pre><code class="language-py">async def create_user(user: BaseUser, db: Session):
+    contact = Users(**user.dict())
+    db.add(contact)
+    db.commit()
+    db.refresh(contact)
+</code></pre>
+<p>This function takes the data (as a pydantic model) and adds it to our database.</p>
+<p>Now again run the server and go to docs <a href="http://127.0.0.1/docs?ref=localhost">http://127.0.0.1/docs</a> and test the /webhook endpoint as showed above.</p>
+<p>This time we should have the data in our database.</p>
+<ul>
+<li>Go to PG Admin</li>
+<li>Click on the database &#x201C;users&#x201D; and click on query tool to run the following SQL command</li>
+<li>Select * from users;</li>
+<li>Hit F5 to execute the command and you should see the table as shown below.</li>
+</ul>
+<p>{{&lt; image src=&quot;image8.png&quot; alt=&quot;Razorpay test payment page&quot; &gt;}}</p>
+<p>Yayy!! we have successfully managed to save data in database.<br>
+You can also test it with the payment page which we created in <a href="https://shekharverma.com/posts/payment_webhooks_fastapi_1/?ref=localhost">Part 1</a> it will work the same way.</p>
+<p>If you found value in this, I&#x2019;d really appreciate it if you join us and write me back.<br>
+And don&#x2019;t forget to follow me on twitter <a href="https://twitter.com/shekhu_verma?ref=localhost">@shekhu_verma</a></p>
+<p>Thankyou for reading :smile:</p>
+]]></content:encoded></item><item><title><![CDATA[Mastering Function Decorators in Python!]]></title><description><![CDATA[A Comprehensive Guide on how decorators work in Python and when to use them]]></description><link>http://localhost:2368/mastering-function-decorators-in-python-/</link><guid isPermaLink="false">655f1bf2624c4c427cb29360</guid><category><![CDATA[Python Tutorial]]></category><category><![CDATA[Python]]></category><category><![CDATA[Python Working]]></category><dc:creator><![CDATA[Shekhar Verma]]></dc:creator><pubDate>Thu, 23 Nov 2023 09:31:30 GMT</pubDate><media:content url="http://localhost:2368/content/images/2023/11/cover_image.png" medium="image"/><content:encoded><![CDATA[<!--more-->
+<img src="http://localhost:2368/content/images/2023/11/cover_image.png" alt="Mastering Function Decorators in Python!"><p>Decorators are an extremely useful feature in Python language that allows programmers to change the behaviour of a function without changing the function. Sounds strange? Well Don&apos;t worry because</p>
+<p>In this post, We are going to:-</p>
+<ol>
+<li>Understand what are decorators and how they work.</li>
+<li>How to create your own decorators</li>
+<li>See the practical use case of decorators</li>
+</ol>
+<p>So let&#x2019;s jump into it.</p>
+<h2 id="understanding-functions-in-python">Understanding Functions in Python!</h2>
+<p>We all have used functions in Python, the most basic example print() is a function that lets us see the output on the screen. Functions are basically a reusable block of code that performs a specific task or set of tasks. Functions are a fundamental concept in programming and are used to organize and modularize code, making it more manageable, readable, and efficient.</p>
+<p>The basic structure of a Python function is shown below.</p>
+<p>All Python functions start with the keyword &quot;def&quot; followed by the function name and parentheses.</p>
+<p>For example</p>
+<pre><code class="language-py">def hello(name):
+    print(f&quot;Hello, {name}&quot;)
+
+hello(&quot;Shekhar&quot;)
+</code></pre>
+<pre><code class="language-bash">Hello, Shekhar
+</code></pre>
+<p>This function simply prints a hello message with the given argument.</p>
+<p>But what if we simply call the function like this, what will happen now?</p>
+<pre><code class="language-py">print(hello)
+</code></pre>
+<p>We will get an output which will look something like this</p>
+<pre><code class="language-bash">&lt;function hello at 0x000001EC6A3F8CC0&gt;
+</code></pre>
+<p>As with most of the things in Python, functions are also an object and the function name is just a reference to that object. The above output tells us that there is a function object at the memory location &quot;0x000001EC6A3F8CC0&quot;.</p>
+<p>That means that you can use functions as arguments to other functions, store functions as dictionary values, or return a function from another function. This leads to many powerful ways to use functions. :astonished:</p>
+<p>Don&apos;t get confused, let&apos;s start one by one.</p>
+<h3 id="function-names-are-just-references-to-the-function">Function names are just references to the function</h3>
+<p>Let&apos;s look at this baby example to understand the concept that function names are just references.</p>
+<pre><code class="language-py">print(&quot;Shekhar&quot;)
+
+myfunction = print
+
+myfunction(&quot;Hello&quot;)
+
+print(print)
+print(myfunction)
+</code></pre>
+<pre><code class="language-bash">Shekhar
+Hello
+&lt;built-in function print&gt;
+&lt;built-in function print&gt;
+</code></pre>
+<p>When we write myfunction = print, we are referencing the print object through myfunction so myfunction acts as a print function.</p>
+<p>Now let&apos;s look at another example, We can do something like this</p>
+<pre><code class="language-py">def add_one(number):
+    return number + 1
+
+def multiply_10(number):
+    return number * 10
+
+function_list = [add_one, multiply_10]
+
+print(add_one(10))
+print(multiply_10(10))
+
+print(function_list[0](10))
+print(function_list[1](10))
+</code></pre>
+<p><strong>We get this output</strong></p>
+<pre><code class="language-bash">11
+100
+11
+100
+</code></pre>
+<h2 id="nested-functions">Nested Functions</h2>
+<p>Now that we have understood the basics of functions in Python, Let&apos;s dive a little deeper.</p>
+<p>Take this function as an example</p>
+<pre><code class="language-py">def prefix(prefix):
+    def hello(name):
+        print(f&quot;{prefix} Hello, {name}!&quot;)
+    return hello
+
+print_debug = prefix(&quot;DEBUG :&quot;)
+print_debug(&quot;shekhar&quot;)
+
+print_warning = prefix(&quot;Warning :&quot;)
+print_warning(&quot;Opps!&quot;)
+</code></pre>
+<p><strong>Output</strong></p>
+<pre><code class="language-bash">DEBUG : Hello, shekhar
+Warning :Hello, Opps!
+</code></pre>
+<p>Here prefix(&quot;DEBUG :&quot;) returns the <strong>reference to function hello</strong> with prefix argument as &quot;DEBUG :&quot;</p>
+<p>{{&lt; image src=&quot;explanation.png&quot; alt=&quot;How nested functions work in python&quot; &gt;}}</p>
+<h2 id="creating-function-decorators">Creating Function Decorators</h2>
+<p>Let&apos;s understand decorators through an example. Consider this code below.</p>
+<pre><code class="language-py">def reverse(func):
+    def reverse_caller(text):
+        func(text[::-1])
+
+    return reverse_caller
+
+rev_print = reverse(print)
+rev_print(&quot;Hello Shekhar!&quot;)
+
+rev_print = reverse(print_warning)
+rev_print(&quot;Shekhar!&quot;)
+</code></pre>
+<h6 id="output">Output</h6>
+<pre><code class="language-bash">!rahkehS olleH
+Warning : Hello, !rahkehS!
+</code></pre>
+<p>Now this function reverse() is taking a function reference as a parameter and returning a function :hushed:<br>
+This is what we call a Decorator, it&apos;s a function that takes a function as parameter, modifies it and returns the function.</p>
+<p>Another way to do that is as following</p>
+<pre><code class="language-py">@reverse
+def greet(name):
+    print(f&quot;Hello {name}&quot;)
+
+greet(&quot;Shekhar&quot;)
+</code></pre>
+<pre><code class="language-bash">Hello rahkehS
+</code></pre>
+<p><em>This is exactly the same as greet=reverse(greet).</em></p>
+<p><em>The @reverse is just a syntax to make things tidy and easier to read</em></p>
+<p>The general template to make a decorator is as follows</p>
+<pre><code class="language-py">def decorator_name(func):
+    def wrapper(func):
+        #DO SOMETHING
+    return wrapper
+</code></pre>
+<h3 id="exercise">Exercise</h3>
+<p>Now that we have understood the basics, let&apos;s write a decorator that will Print &quot;BEFORE&quot; runs the function and print &quot;AFTER&quot;.</p>
+<p>I&apos;d highly recommend you to try it on your own before beginning further.</p>
+<p>Following our decorator template we have the following</p>
+<pre><code class="language-py">def before_after(func):
+    def wrapper(name):
+        print(&quot;Before&quot;)
+        func(name)
+        print(&quot;After&quot;)
+    return wrapper
+
+@before_after
+def greet(name):
+    print(f&quot;Hello {name}&quot;)
+
+
+greet(&quot;shekhar&quot;)
+</code></pre>
+<p><strong>Output</strong></p>
+<p>And it works as expected :smiley:</p>
+<pre><code class="language-bash">Before
+Hello shekhar
+After
+</code></pre>
+<h2 id="handling-arguments-in-decorators">Handling arguments in Decorators</h2>
+<p>Now take our previous example greet and try to add a default argument to it and see what happens.</p>
+<pre><code class="language-py">@before_after
+def greet(name=&quot;Shekhar&quot;):
+    print(f&quot;Hello {name}&quot;)
+</code></pre>
+<p>What do think? will it work or not?</p>
+<p>Let&apos;s see the output</p>
+<pre><code class="language-bash">TypeError: before_after.&lt;locals&gt;.wrapper() missing 1 required positional argument: &apos;name&apos;
+</code></pre>
+<p>It failed because when we decorate a function and use it, then we are not actually using our original function.<br>
+We are using the nested wrapper function. If we pass greet() with no arguments then our wrapper function will also receive no arguments but it requires one &quot;name&quot; argument to function properly.</p>
+<p>That&apos;s why the error says that &quot;wapper() missing 1 required positional argument: name&quot;</p>
+<p>Let&apos;s take another example to understand this concept more.</p>
+<pre><code class="language-py">def greet(name):
+    print(f&quot;Hello {name}&quot;)
+
+greet(&quot;Shekhar&quot;)
+
+print(greet.__name__)
+
+@before_after
+def greet(name):
+    print(f&quot;Hello {name}&quot;)
+
+greet(&quot;Shekhar&quot;)
+
+print(greet.__name__)
+</code></pre>
+<h6 id="output">Output</h6>
+<pre><code class="language-bash">Hello Shekhar
+greet
+Hello rahkehS
+wrapper
+</code></pre>
+<p>The <strong>__name__</strong> is an in-built property in Python that returns the name of the object and as I mentioned before, function names are references to the function objects we can get their names (or you can say the name of the function object).</p>
+<p>One <em>interesting thing</em> to notice here is that when we add our decorator to the function, the name of the function changes to the wrapper (because  that was the name of the wrapper function in our decorator). This shows that when we use the decorated function, we are actually using the wrapper function from the decorator.</p>
+<h3 id="how-to-improve-our-decorators">How to improve our decorators?</h3>
+<p>As we saw, it is really important to make our decorators in such a way that they can handle these kinds of cases. We will face a similar error if we try to pass more than one argument to our decorated function.</p>
+<p>To solve these kinds of issues we use *args and **kwargs, they translate to argument and keyword arguments respectively.<br>
+I will be explaining these in much more detail in an upcoming blog in which I will share how Python actually runs and how functions are executed.</p>
+<p><strong>*</strong> and <strong>**</strong> actually hold meaning in Python, these are called unpacking operators.</p>
+<ul>
+<li><strong>*</strong> Expands any variable as List</li>
+<li><strong>**</strong> Expands any variable as Dictionary</li>
+</ul>
+<p>For example</p>
+<pre><code class="language-py">a = [1,2,3]
+b = [3,4,5]
+c1 = [*a,*b]
+c2 = [a,b]
+
+dict1 = {&apos;a&apos;:1,&apos;b&apos;:2}
+dict2 = {&apos;b&apos;:2,&apos;c&apos;:3}
+dict3 = {**dict1,**dict2}
+
+print(f&quot;c1:{c1}\n c2:{c2}&quot;)
+print(dict3)
+</code></pre>
+<pre><code class="language-bash">c1:[1, 2, 3, 3, 4, 5]
+c2:[[1, 2, 3], [3, 4, 5]]
+{&apos;a&apos;: 1, &apos;b&apos;: 2, &apos;c&apos;: 3}
+</code></pre>
+<p>The *args enables us to send any number of arguments to the function and **kwargs enables us to pass in any number of keyworded arguments when calling the function.</p>
+<p>For example</p>
+<pre><code class="language-py">def testing(*args,**kwargs):
+    print(f&quot;Args = {args}&quot;)
+    print(f&quot;KWargs = {kwargs}&quot;)
+
+testing(&quot;hello&quot;,1,name=&quot;shekhar&quot;)
+</code></pre>
+<pre><code class="language-bash">Args = (&apos;hello&apos;, 1)
+KWargs = {&apos;name&apos;: &apos;shekhar&apos;}
+</code></pre>
+<p>&quot;args&quot; and &quot;kwargs&quot; is the general naming convention, You can use any other name following the same * and ** pattern and it will work the same way.</p>
+<h3 id="using-args-and-kwargs-in-decorators">Using Args and Kwargs in Decorators</h3>
+<pre><code class="language-py">def before_after(func):
+    def wrapper(*args, **kwargs):
+        print(&quot;Before&quot;)
+        func(*args, **kwargs)
+        print(&quot;After&quot;)
+
+    return wrapper
+
+
+@before_after
+def greet(name=&quot;Shekhar&quot;):
+    print(f&quot;Hello {name}&quot;)
+
+
+greet()
+greet(&quot;joey&quot;)
+</code></pre>
+<pre><code class="language-bash">Before
+Hello Shekhar
+After
+Before
+Hello joey
+After
+</code></pre>
+<h3 id="another-exercise">Another Exercise</h3>
+<p>Let&apos;s write a decorator to run the decorated function thrice and return a 3 value tuple with results.</p>
+<pre><code class="language-py">import random
+
+def do_thrice(func):
+    print(f&quot;Adding decorator to {func.__name__}&quot;)
+
+    def wrapper():
+        return (func(), func(), func())
+
+    return wrapper
+
+
+@do_thrice
+def roll_dice():
+    return random.randint(1, 6)
+
+print(roll_dice())
+</code></pre>
+<p><strong>Output</strong></p>
+<pre><code class="language-bash">Adding decorator to roll_dice
+(2, 2, 1)
+</code></pre>
+<h2 id="real-use-cases">Real use Cases</h2>
+<p>Now that we have seen enough examples of creating decorators, let&apos;s see what are some real use cases in which decorators are extremely useful.</p>
+<h2 id="measuring-performance-of-other-functions">Measuring Performance of other functions</h2>
+<p>Suppose you have many functions in your code and you want to optimise your code. Now instead of writing the code for getting the runtime and memory usage for each function, we can simply write a decorator and apply it to all the functions we want to test.</p>
+<p>Let&apos;s take this example in which we are calculating function runtime using perf_counter (It&apos;s just like a stopwatch) and calculating memory usage using tracemalloc function. (It&apos;s part of the standard library, will be making a dedicated blog on this topic).</p>
+<pre><code class="language-py">from functools import wraps
+import tracemalloc
+from time import perf_counter 
+
+def measure_performance(func):
+    @wraps(func)  # It is a inbuilt decorator in python
+    # When used, the decorated function name remains the same
+
+    def wrapper(*args, **kwargs):
+        tracemalloc.start()
+        start_time = perf_counter()
+        func(*args, **kwargs)
+        current, peak = tracemalloc.get_traced_memory()
+        finish_time = perf_counter()
+        print(f&quot;Function: {func.__name__}&quot;)
+        print(
+            f&quot;Memory usage:\t\t {current / 10**6:.6f} MB \n&quot;
+            f&quot;Peak memory usage:\t {peak / 10**6:.6f} MB &quot;
+        )
+        print(f&quot;Time elapsed is seconds: {finish_time - start_time:.6f}&quot;)
+        print(f&apos;{&quot;-&quot;*40}&apos;)
+        tracemalloc.stop()
+
+    return wrapper
+
+
+@measure_performance
+def function1():
+    lis = []
+    for a in range(1000000):
+        if a % 2 == 0:
+            lis.append(1)
+        else:
+            lis.append(0)
+
+
+@measure_performance
+def function2():
+    lis = [1 if a % 2 == 0 else 0 for a in range(1000000)]
+
+
+function1()
+function2()
+</code></pre>
+<pre><code class="language-bash">Function: function1
+Memory usage:            0.000000 MB
+Peak memory usage:       8.448768 MB
+Time elapsed is seconds: 0.329556
+----------------------------------------
+Function: function2
+Memory usage:            0.000000 MB
+Peak memory usage:       8.448920 MB
+Time elapsed is seconds: 0.294334
+----------------------------------------
+</code></pre>
+<p>We simply added 2 decorators to our functions instead of adding the whole code to each function. This makes our code much more concise and readable.</p>
+<h3 id="dynamically-adding-functionality">Dynamically adding functionality</h3>
+<p>Many Libraries such as Flask or FastAPI use decorators extensively to create API routes.<br>
+For example in FastAPI, we use something like this</p>
+<pre><code class="language-py">@app.get(&quot;/helloWorld&quot;, tags=[&quot;Testing&quot;])
+def read_root():
+    return {&quot;Hello&quot;: &quot;World&quot;}
+</code></pre>
+<p>This creates a get endpoint /helloworld which triggers read_root() function whenever called.</p>
+<h2 id="wrap-up">Wrap-up</h2>
+<p>That was it for this blog.</p>
+<p>I hope you learned something new today.</p>
+<p>If you did, please like/share so that it reaches others as well.</p>
+<p>Connect with me on <a href="https://twitter.com/shekhu_verma?ref=localhost">@twitter</a> where I write regularly about software development and solopreneurship.</p>
+<p>:white_check_mark: Here are some more posts you might be interested in.</p>
+<ol>
+<li><a href="https://shekharverma.com/posts/increasing_python_speed/?ref=localhost">How I improved my python code Performance by 371%!</a></li>
+<li><a href="https://shekharverma.com/posts/pysusb_and_rp2040/?ref=localhost">RaspberryPi PICO and PYUSB: Unlocking the Power of Custom USB Endpoints</a></li>
+<li><a href="https://shekharverma.com/posts/why_i_started_this_blog/?ref=localhost">Why I Started This Blog?</a></li>
+</ol>
+<p>Thank you for reading :smile:</p>
+]]></content:encoded></item></channel></rss>
