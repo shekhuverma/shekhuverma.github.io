@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html ⚡>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+
+    <title>Mastering Function Decorators in Python!</title>
+
+    <meta name="description" content="A Comprehensive Guide on how decorators work in Python and when to use them">
+    <link rel="canonical" href="http://localhost:2368/mastering-function-decorators-in-python-/">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+    <meta property="og:site_name" content="Shekhar Verma">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Mastering Function Decorators in Python!">
+    <meta property="og:description" content="A Comprehensive Guide on how decorators work in Python and when to use them">
+    <meta property="og:url" content="http://localhost:2368/mastering-function-decorators-in-python-/">
+    <meta property="og:image" content="http://localhost:2368/content/images/2023/11/cover_image.png">
+    <meta property="article:published_time" content="2023-11-23T09:31:30.000Z">
+    <meta property="article:modified_time" content="2023-11-23T10:49:00.000Z">
+    <meta property="article:tag" content="Python Tutorial">
+    <meta property="article:tag" content="Python">
+    <meta property="article:tag" content="Python Working">
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Mastering Function Decorators in Python!">
+    <meta name="twitter:description" content="A Comprehensive Guide on how decorators work in Python and when to use them">
+    <meta name="twitter:url" content="http://localhost:2368/mastering-function-decorators-in-python-/">
+    <meta name="twitter:image" content="http://localhost:2368/content/images/2023/11/cover_image.png">
+    <meta name="twitter:label1" content="Written by">
+    <meta name="twitter:data1" content="Shekhar Verma">
+    <meta name="twitter:label2" content="Filed under">
+    <meta name="twitter:data2" content="Python Tutorial, Python, Python Working">
+    <meta name="twitter:site" content="@shekhu_verma">
+    <meta name="twitter:creator" content="@shekhu_verma">
+    <meta property="og:image:width" content="1456">
+    <meta property="og:image:height" content="816">
+    
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "publisher": {
+        "@type": "Organization",
+        "name": "Shekhar Verma",
+        "url": "http://localhost:2368/",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "http://localhost:2368/favicon.ico"
+        }
+    },
+    "author": {
+        "@type": "Person",
+        "name": "Shekhar Verma",
+        "image": {
+            "@type": "ImageObject",
+            "url": "http://localhost:2368/content/images/2023/11/1679463984748.png",
+            "width": 400,
+            "height": 400
+        },
+        "url": "http://localhost:2368/author/shekhar/",
+        "sameAs": [
+            "https://twitter.com/shekhu_verma"
+        ]
+    },
+    "headline": "Mastering Function Decorators in Python!",
+    "url": "http://localhost:2368/mastering-function-decorators-in-python-/",
+    "datePublished": "2023-11-23T09:31:30.000Z",
+    "dateModified": "2023-11-23T10:49:00.000Z",
+    "image": {
+        "@type": "ImageObject",
+        "url": "http://localhost:2368/content/images/2023/11/cover_image.png",
+        "width": 1456,
+        "height": 816
+    },
+    "keywords": "Python Tutorial, Python, Python Working",
+    "description": "\n\n\nDecorators are an extremely useful feature in Python language that allows programmers to change the behaviour of a function without changing the function. Sounds strange? Well Don&#x27;t worry because\n\n\nIn this post, We are going to:-\n\n\n 1. Understand what are decorators and how they work.\n 2. How to create your own decorators\n 3. See the practical use case of decorators\n\n\nSo let’s jump into it.\n\n\n\nUnderstanding Functions in Python!\n\n\nWe all have used functions in Python, the most basic example pr",
+    "mainEntityOfPage": "http://localhost:2368/mastering-function-decorators-in-python-/"
+}
+    </script>
+
+    <meta name="generator" content="Ghost 5.74">
+    <link rel="alternate" type="application/rss+xml" title="Shekhar Verma" href="http://localhost:2368/rss/">
+
+    <style amp-custom>
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
+
+    html {
+        overflow-x: hidden;
+        overflow-y: scroll;
+        font-size: 62.5%;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    }
+
+    body {
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+        color: #3a4145;
+        font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Open Sans,Helvetica Neue,sans-serif;
+        font-size: 1.7rem;
+        line-height: 1.55em;
+        font-weight: 400;
+        font-style: normal;
+        background: #fff;
+        scroll-behavior: smooth;
+        overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    p,
+    ul,
+    ol,
+    li,
+    dl,
+    dd,
+    hr,
+    pre,
+    form,
+    table,
+    video,
+    figure,
+    figcaption,
+    blockquote {
+        margin: 0;
+        padding: 0;
+    }
+
+    ul[class],
+    ol[class] {
+        padding: 0;
+        list-style: none;
+    }
+
+    img {
+        display: block;
+        max-width: 100%;
+    }
+
+    input,
+    button,
+    select,
+    textarea {
+        font: inherit;
+        -webkit-appearance: none;
+    }
+
+    fieldset {
+        margin: 0;
+        padding: 0;
+        border: 0;
+    }
+
+    label {
+        display: block;
+        font-size: 0.9em;
+        font-weight: 700;
+    }
+
+    hr {
+        position: relative;
+        display: block;
+        width: 100%;
+        height: 1px;
+        border: 0;
+        border-top: 1px solid currentcolor;
+        opacity: 0.1;
+    }
+
+    ::selection {
+        text-shadow: none;
+        background: #cbeafb;
+    }
+
+    mark {
+        background-color: #fdffb6;
+    }
+
+    small {
+        font-size: 80%;
+    }
+
+    sub,
+    sup {
+        position: relative;
+        font-size: 75%;
+        line-height: 0;
+        vertical-align: baseline;
+    }
+    sup {
+        top: -0.5em;
+    }
+    sub {
+        bottom: -0.25em;
+    }
+
+    ul li + li {
+        margin-top: 0.6em;
+    }
+
+    a {
+        color: var(--ghost-accent-color, #1292EE);
+        text-decoration-skip-ink: auto;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        margin: 0;
+        font-weight: 700;
+        color: #121212;
+        line-height: 1.4em;
+    }
+
+    h1 {
+        font-size: 3.4rem;
+        line-height: 1.1em;
+    }
+
+    h2 {
+        font-size: 2.4rem;
+        line-height: 1.2em;
+    }
+
+    h3 {
+        font-size: 1.8rem;
+    }
+
+    h4 {
+        font-size: 1.7rem;
+    }
+
+    h5 {
+        font-size: 1.6rem;
+    }
+
+    h6 {
+        font-size: 1.6rem;
+    }
+
+    amp-img {
+        height: 100%;
+        width: 100%;
+        max-width: 100%;
+        max-height: 100%;
+    }
+
+    amp-img img {
+        object-fit: cover;
+    }
+    
+    amp-youtube {
+        height: calc(100vw / 1.78);
+        width: 100vw;
+        position: relative;
+    }
+
+    amp-youtube img {
+        position: absolute;
+    }
+
+    .page-header {
+        padding: 50px 5vmin 30px;
+        text-align: center;
+        font-size: 2rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .page-header a {
+        color: #121212;
+        font-weight: 700;
+        text-decoration: none;
+        font-size: 1.6rem;
+        letter-spacing: -0.1px;
+    }
+
+    .post {
+        max-width: 680px;
+        margin: 0 auto;
+    }
+
+    .post-header {
+        margin: 0 5vmin 5vmin;
+        text-align: center;
+    }
+
+    .post-meta {
+        margin: 1rem 0 0 0;
+        text-transform: uppercase;
+        color: #738a94;
+        font-weight: 500;
+        font-size: 1.3rem;
+    }
+
+    .post-image {
+        margin: 0 0 5vmin;
+    }
+
+    .post-image img {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    .post-content {
+        padding: 0 5vmin;
+    }
+
+    .post-content > * + * {
+        margin-top: 1.5em;
+    }
+
+    .post-content [id]:not(:first-child) {
+        margin: 2em 0 0;
+    }
+
+    .post-content > [id] + * {
+        margin-top: 1rem;
+    }
+
+    .post-content [id] + .kg-card,
+    .post-content blockquote + .kg-card {
+        margin-top: 40px;
+    }
+
+    .post-content > ul,
+    .post-content > ol,
+    .post-content > dl {
+        padding-left: 1.9em;
+    }
+
+    .post-content hr {
+        margin-top: 40px;
+    }
+
+    .post .post-content hr + * {
+        margin-top: 40px;
+    }
+
+    .post-content amp-img {
+        background-color: #f8f8f8;
+    }
+
+    .post-content blockquote {
+        position: relative;
+        font-style: italic;
+    }
+
+    .post-content blockquote::before {
+        content: "";
+        position: absolute;
+        left: -1.5em;
+        top: 0;
+        bottom: 0;
+        width: 0.3rem;
+        background: var(--ghost-accent-color, #1292EE);
+    }
+
+    .post-content blockquote.kg-blockquote-alt {
+        font-size: 1.2em;
+        font-style: italic;
+        line-height: 1.6em;
+        text-align: center;
+        color: #738a94;
+        padding: 0.75em 3em 1.25em;
+    }
+
+    .post-content blockquote.kg-blockquote-alt::before {
+        display: none;
+    }
+
+    .post-content :not(.kg-card):not([id]) + .kg-card {
+        margin-top: 40px;
+    }
+
+    .post-content .kg-card + :not(.kg-card) {
+        margin-top: 40px;
+    }
+
+    .kg-card figcaption {
+        padding: 1.5rem 1.5rem 0;
+        text-align: center;
+        font-weight: 500;
+        font-size: 1.3rem;
+        line-height: 1.4em;
+        opacity: 0.6;
+    }
+
+    .kg-card figcaption strong {
+        color: rgba(0,0,0,0.8);
+    }
+
+    .post-content :not(pre) code {
+        vertical-align: middle;
+        padding: 0.15em 0.4em 0.15em;
+        border: #e1eaef 1px solid;
+        font-weight: 400;
+        font-size: 0.9em;
+        line-height: 1em;
+        color: #15171a;
+        background: #f0f6f9;
+        border-radius: 0.25em;
+    }
+
+    .post-content > pre {
+        overflow: scroll;
+        padding: 16px 20px;
+        color: #fff;
+        background: #1F2428;
+        border-radius: 5px;
+        box-shadow: 0 2px 6px -2px rgba(0,0,0,.1), 0 0 1px rgba(0,0,0,.4);
+    }
+
+    .kg-embed-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+
+    .kg-image-card img {
+        margin: auto;
+    }
+
+    .kg-gallery-card + .kg-gallery-card {
+        margin-top: 0.75em;
+    }
+
+    .kg-gallery-container {
+        position: relative;
+    }
+
+    .kg-gallery-row {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+    }
+
+    .kg-gallery-image {
+        width: 100%;
+        height: 100%;
+    }
+
+    .kg-gallery-row:not(:first-of-type) {
+        margin: 0.75em 0 0 0;
+    }
+
+    .kg-gallery-image:not(:first-of-type) {
+        margin: 0 0 0 0.75em;
+    }
+
+    .kg-bookmark-card,
+    .kg-bookmark-publisher {
+        position: relative;
+    }
+
+    .kg-bookmark-container,
+    .kg-bookmark-container:hover {
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: row-reverse;
+        color: currentColor;
+        background: rgba(255,255,255,0.6);
+        font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Open Sans,Helvetica Neue,sans-serif;
+        text-decoration: none;
+        border-radius: 3px;
+        box-shadow: 0 2px 6px -2px rgba(0, 0, 0, 0.1), 0 0 1px rgba(0, 0, 0, 0.4);
+        overflow: hidden;
+    }
+
+    .kg-bookmark-content {
+        flex-basis: 0;
+        flex-grow: 999;
+        padding: 20px;
+        order: 1;
+    }
+
+    .kg-bookmark-title {
+        font-weight: 600;
+        font-size: 1.5rem;
+        line-height: 1.3em;
+    }
+
+    .kg-bookmark-description {
+        display: -webkit-box;
+        max-height: 45px;
+        margin: 0.5em 0 0 0;
+        font-size: 1.4rem;
+        line-height: 1.55em;
+        overflow: hidden;
+        opacity: 0.8;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .kg-bookmark-metadata {
+        margin-top: 20px;
+    }
+
+    .kg-bookmark-metadata {
+        display: flex;
+        align-items: center;
+        font-weight: 500;
+        font-size: 1.3rem;
+        line-height: 1.3em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .kg-bookmark-description {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+    }
+
+    .kg-bookmark-metadata amp-img {
+        width: 18px;
+        height: 18px;
+        max-width: 18px;
+        max-height: 18px;
+        margin-right: 10px;
+    }
+
+    .kg-bookmark-thumbnail {
+        display: flex;
+        flex-basis: 20rem;
+        flex-grow: 1;
+        justify-content: flex-end;
+    }
+
+    .kg-bookmark-thumbnail amp-img {
+        max-height: 200px;
+    }
+
+    .kg-bookmark-author {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    .kg-bookmark-publisher::before {
+        content: "•";
+        margin: 0 .5em;
+    }
+
+    .kg-toggle-card-icon {
+        display: none;
+    }
+
+    .kg-toggle-content {
+        margin-top: 0.8rem;
+    }
+
+    .kg-product-card-container {
+        background: transparent;
+        padding: 20px;
+        width: 100%;
+        border-radius: 5px;
+        box-shadow: inset 0 0 0 1px rgb(124 139 154 / 25%);
+    }
+
+    .kg-product-card-description p {
+        margin-top: 1.5em;
+    }
+
+    .kg-product-card-description ul {
+        margin-left: 24px;
+    }
+
+    .kg-product-card-title {
+        font-size: 1.9rem;
+        font-weight: 700;
+    }
+
+    .kg-product-card-rating-star {
+        height: 28px;
+        width: 20px;
+        margin-right: 2px;
+    }
+
+    .kg-product-card-rating-star svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+    opacity: 0.15;
+    }
+
+    .kg-product-card-rating-active.kg-product-card-rating-star svg {
+    opacity: 1;
+    }
+
+    .kg-nft-card-container {
+        position: relative;
+        display: flex;
+        flex: auto;
+        flex-direction: column;
+        text-decoration: none;
+        font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Open Sans,Helvetica Neue,sans-serif;
+        font-size: 1.4rem;
+        font-weight: 400;
+        box-shadow: 0 2px 6px -2px rgb(0 0 0 / 10%), 0 0 1px rgb(0 0 0 / 40%);
+        width: 100%;
+        max-width: 512px;
+        color: #15212A;
+        background: #fff;
+        border-radius: 5px;
+        transition: none;
+        margin: 0 auto;
+    }
+
+    .kg-nft-metadata {
+        padding: 2.0rem;
+    }
+
+    .kg-nft-image-container {
+        position: relative;
+    }
+
+    .kg-nft-image {
+        display: flex;
+        border-radius: 5px 5px 0 0;
+    }
+
+    .kg-nft-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .kg-nft-header h4.kg-nft-title {
+        font-size: 1.9rem;
+        font-weight: 700;
+        margin: 0;
+        color: #15212A;
+    }
+
+    .kg-nft-header amp-img {
+        max-width: 114px;
+        max-height: 26px;
+    }
+
+    .kg-nft-opensea-logo {
+        margin-top: 2px;
+        width: 100px;
+    }
+
+    .kg-nft-creator {
+        font-family: inherit;
+        color: #95A1AD;
+    }
+
+    .kg-nft-creator span {
+        font-weight: 500;
+        color: #15212A;
+    }
+
+    .kg-nft-card p.kg-nft-description {
+        font-size: 1.4rem;
+        line-height: 1.4em;
+        margin: 2.0rem 0 0;
+        color: #222;
+    }
+
+    .kg-button-card {
+        display: flex;
+        position: static;
+        align-items: center;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .kg-btn {
+        display: flex;
+        position: static;
+        align-items: center;
+        padding: 0 2.0rem;
+        height: 4.0rem;
+        line-height: 4.0rem;
+        font-size: 1.65rem;
+        font-weight: 600;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: opacity 0.2s ease-in-out;
+    }
+
+    .kg-btn:hover {
+        opacity: 0.85;
+    }
+
+    .kg-btn-accent {
+        background-color: var(--ghost-accent-color, #1292EE);
+        color: #fff;
+    }
+
+    .kg-callout-card {
+        display: flex;
+        padding: 20px 28px;
+        border-radius: 3px;
+    }
+
+    .kg-callout-card-grey {
+        background: rgba(124, 139, 154, 0.13);
+    }
+
+    .kg-callout-card-white {
+        background: transparent;
+        box-shadow: inset 0 0 0 1px rgba(124, 139, 154, 0.25);
+    }
+
+    .kg-callout-card-blue {
+        background: rgba(33, 172, 232, 0.12);
+    }
+
+    .kg-callout-card-green {
+        background: rgba(52, 183, 67, 0.12);
+    }
+
+    .kg-callout-card-yellow {
+        background: rgba(240, 165, 15, 0.13);
+    }
+
+    .kg-callout-card-red {
+        background: rgba(209, 46, 46, 0.11);
+    }
+
+    .kg-callout-card-pink {
+        background: rgba(225, 71, 174, 0.11);
+    }
+
+    .kg-callout-card-purple {
+        background: rgba(135, 85, 236, 0.12);
+    }
+
+    .kg-callout-card-accent {
+        background: var(--ghost-accent-color);
+        color: #fff;
+    }
+
+    .kg-callout-card-accent a {
+        color: #fff;
+    }
+
+    .kg-callout-emoji {
+        padding-right: 16px;
+        line-height: 1.3;
+        font-size: 1.25em;
+    }
+
+    .kg-header-card {
+        padding: 6em 3em;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .kg-header-card.kg-size-small {
+        padding-top: 4em;
+        padding-bottom: 4em;
+    }
+
+    .kg-header-card.kg-size-large {
+        padding-top: 12em;
+        padding-bottom: 12em;
+    }
+
+    .kg-header-card.kg-width-full {
+        padding-left: 4em;
+        padding-right: 4em;
+    }
+
+    .kg-header-card.kg-align-left {
+        text-align: left;
+        align-items: flex-start;
+    }
+
+    .kg-header-card.kg-style-dark {
+        background: #15171a;
+        color: #ffffff;
+    }
+
+    .kg-header-card.kg-style-light {
+        color: #15171a;
+        border: 1px solid rgba(124, 139, 154, 0.25);
+        border-width: 1px 0;
+    }
+
+    .kg-header-card.kg-style-accent {
+        background-color: var(--ghost-accent-color);
+    }
+
+    .kg-header-card.kg-style-image {
+        background-color: #e7e7eb;
+        background-size: cover;
+        background-position: center center;
+    }
+
+    .kg-header-card h2 {
+        font-size: 4em;
+        font-weight: 700;
+        line-height: 1.1em;
+        margin: 0;
+    }
+
+    .kg-header-card h2 strong {
+        font-weight: 800;
+    }
+
+    .kg-header-card.kg-size-small h2 {
+        font-size: 3em;
+    }
+
+    .kg-header-card.kg-size-large h2 {
+        font-size: 5em;
+    }
+
+    .kg-header-card h3 {
+        font-size: 1.25em;
+        font-weight: 500;
+        line-height: 1.3em;
+        margin: 0;
+    }
+
+    .kg-header-card h3 strong {
+        font-weight: 600;
+    }
+
+    .kg-header-card.kg-size-small h3 {
+        font-size: 1em;
+    }
+
+    .kg-header-card.kg-size-large h3 {
+        font-size: 1.5em;
+    }
+
+    .kg-header-card:not(.kg-style-light) h2,
+    .kg-header-card:not(.kg-style-light) h3 {
+        color: #ffffff;
+    }
+
+    .kg-header-card a.kg-header-card-button {
+        display: flex;
+        position: static;
+        align-items: center;
+        padding: 0 1.2em;
+        height: 2.4em;
+        line-height: 1em;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+        font-size: 0.95em;
+        font-weight: 600;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: opacity 0.2s ease-in-out;
+        background-color: var(--ghost-accent-color);
+        color: #ffffff;
+        margin: 1.75em 0 0;
+    }
+
+    .kg-header-card a.kg-header-card-button:hover {
+        opacity: 0.85;
+    }
+
+    .kg-header-card.kg-size-large a.kg-header-card-button {
+        margin-top: 2em;
+    }
+
+    .kg-header-card.kg-size-small a.kg-header-card-button {
+        margin-top: 1.5em;
+    }
+
+    .kg-header-card.kg-style-image a.kg-header-card-button,
+    .kg-header-card.kg-style-dark a.kg-header-card-button {
+        background: #ffffff;
+        color: #15171a;
+    }
+
+    .kg-header-card.kg-style-accent a.kg-header-card-button {
+        background: #ffffff;
+        color: var(--ghost-accent-color);
+    }
+
+    .kg-audio-card {
+        display: flex;
+        width: 100%;
+        box-shadow: inset 0 0 0 1px rgba(124, 139, 154, 0.25);
+    }
+
+    .kg-audio-thumbnail {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 80px;
+        min-width: 80px;
+        height: 80px;
+        background: transparent;
+        object-fit: cover;
+        aspect-ratio: 1/1;
+        border-radius: 3px 0 0 3px;
+    }
+
+    .kg-audio-thumbnail.placeholder {
+        background: var(--ghost-accent-color);
+    }
+
+    .kg-audio-thumbnail.placeholder svg {
+        width: 24px;
+        height: 24px;
+        fill: white;
+    }
+
+    .kg-audio-player-container {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        width: 100%;
+        --seek-before-width: 0%;
+        --volume-before-width: 100%;
+        --buffered-width: 0%;
+    }
+
+    .kg-audio-title {
+        width: 100%;
+        padding: 8px 12px 0;
+        border: none;
+        font-family: inherit;
+        font-size: 1.1em;
+        font-weight: 700;
+        background: transparent;
+    }
+
+    .kg-audio-player {
+        display: none;
+    }
+
+    .kg-width-full.kg-card-hascaption {
+        display: grid;
+        grid-template-columns: inherit;
+    }
+
+    .post-content table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    .post-content th {
+        padding: 0.5em 0.8em;
+        text-align: left;
+        font-size: .75em;
+        text-transform: uppercase;
+    }
+
+    .post-content td {
+        padding: 0.4em 0.7em;
+    }
+
+    .post-content tbody tr:nth-child(2n + 1) {
+        background-color: rgba(0,0,0,0.1);
+        padding: 1px;
+    }
+
+    .post-content tbody tr:nth-child(2n + 2) td:last-child {
+        box-shadow:
+            inset 1px 0 rgba(0,0,0,0.1),
+            inset -1px 0 rgba(0,0,0,0.1);
+    }
+
+    .post-content tbody tr:nth-child(2n + 2) td {
+        box-shadow: inset 1px 0 rgba(0,0,0,0.1);
+    }
+
+    .post-content tbody tr:last-child {
+        border-bottom: 1px solid rgba(0,0,0,.1);
+    }
+
+    .page-footer {
+        padding: 60px 5vmin;
+        margin: 60px auto 0;
+        text-align: center;
+        background-color: #f8f8f8;
+    }
+
+    .page-footer h3 {
+        margin: 0.5rem 0 0 0;
+    }
+
+    .page-footer p {
+        max-width: 500px;
+        margin: 1rem auto 1.5rem;
+        font-size: 1.7rem;
+        line-height: 1.5em;
+        color: rgba(0,0,0,0.6)
+    }
+
+    .powered {
+        display: inline-flex;
+        align-items: center;
+        margin: 30px 0 0;
+        padding: 6px 9px 6px 6px;
+        border: rgba(0,0,0,0.1) 1px solid;
+        font-size: 12px;
+        line-height: 12px;
+        letter-spacing: -0.2px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+        font-weight: 500;
+        color: #222;
+        text-decoration: none;
+        background: #fff;
+        border-radius: 6px;
+    }
+
+    .powered svg {
+        height: 16px;
+        width: 16px;
+        margin: 0 6px 0 0;
+    }
+
+    @media (max-width: 600px) {
+        body {
+            font-size: 1.6rem;
+        }
+        h1 {
+            font-size: 3rem;
+        }
+
+        h2 {
+            font-size: 2.2rem;
+        }
+    }
+
+    @media (max-width: 400px) {
+        h1 {
+            font-size: 2.6rem;
+            line-height: 1.15em;
+        }
+        h2 {
+            font-size: 2rem;
+            line-height: 1.2em;
+        }
+        h3 {
+            font-size: 1.7rem;
+        }
+    }
+
+    :root {--ghost-accent-color: #878484;}
+    </style>
+
+    <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
+    <script async src="https://cdn.ampproject.org/v0.js"></script>
+
+    
+
+</head>
+
+<body class="amp-template">
+    <header class="page-header">
+        <a href="http://localhost:2368">
+                Shekhar Verma
+        </a>
+    </header>
+
+    <main class="content" role="main">
+        <article class="post">
+
+            <header class="post-header">
+                <h1 class="post-title">Mastering Function Decorators in Python!</h1>
+                <section class="post-meta">
+                    Shekhar Verma -
+                    <time class="post-date" datetime="2023-11-23">23 Nov 2023</time>
+                </section>
+            </header>
+            <figure class="post-image">
+                <amp-img src="http://localhost:2368/content/images/2023/11/cover_image.png" width="600" height="340" layout="responsive" 
+                alt="Mastering Function Decorators in Python!"
+                ></amp-img>
+            </figure>
+            <section class="post-content">
+
+                
+<p>Decorators are an extremely useful feature in Python language that allows programmers to change the behaviour of a function without changing the function. Sounds strange? Well Don't worry because</p>
+<p>In this post, We are going to:-</p>
+<ol>
+<li>Understand what are decorators and how they work.</li>
+<li>How to create your own decorators</li>
+<li>See the practical use case of decorators</li>
+</ol>
+<p>So let’s jump into it.</p>
+<h2 id="understanding-functions-in-python">Understanding Functions in Python!</h2>
+<p>We all have used functions in Python, the most basic example print() is a function that lets us see the output on the screen. Functions are basically a reusable block of code that performs a specific task or set of tasks. Functions are a fundamental concept in programming and are used to organize and modularize code, making it more manageable, readable, and efficient.</p>
+<p>The basic structure of a Python function is shown below.</p>
+<p>All Python functions start with the keyword "def" followed by the function name and parentheses.</p>
+<p>For example</p>
+<pre><code class="language-py">def hello(name):
+    print(f"Hello, {name}")
+
+hello("Shekhar")
+</code></pre>
+<pre><code class="language-bash">Hello, Shekhar
+</code></pre>
+<p>This function simply prints a hello message with the given argument.</p>
+<p>But what if we simply call the function like this, what will happen now?</p>
+<pre><code class="language-py">print(hello)
+</code></pre>
+<p>We will get an output which will look something like this</p>
+<pre><code class="language-bash">&lt;function hello at 0x000001EC6A3F8CC0&gt;
+</code></pre>
+<p>As with most of the things in Python, functions are also an object and the function name is just a reference to that object. The above output tells us that there is a function object at the memory location "0x000001EC6A3F8CC0".</p>
+<p>That means that you can use functions as arguments to other functions, store functions as dictionary values, or return a function from another function. This leads to many powerful ways to use functions. :astonished:</p>
+<p>Don't get confused, let's start one by one.</p>
+<h3 id="function-names-are-just-references-to-the-function">Function names are just references to the function</h3>
+<p>Let's look at this baby example to understand the concept that function names are just references.</p>
+<pre><code class="language-py">print("Shekhar")
+
+myfunction = print
+
+myfunction("Hello")
+
+print(print)
+print(myfunction)
+</code></pre>
+<pre><code class="language-bash">Shekhar
+Hello
+&lt;built-in function print&gt;
+&lt;built-in function print&gt;
+</code></pre>
+<p>When we write myfunction = print, we are referencing the print object through myfunction so myfunction acts as a print function.</p>
+<p>Now let's look at another example, We can do something like this</p>
+<pre><code class="language-py">def add_one(number):
+    return number + 1
+
+def multiply_10(number):
+    return number * 10
+
+function_list = [add_one, multiply_10]
+
+print(add_one(10))
+print(multiply_10(10))
+
+print(function_list[0](10))
+print(function_list[1](10))
+</code></pre>
+<p><strong>We get this output</strong></p>
+<pre><code class="language-bash">11
+100
+11
+100
+</code></pre>
+<h2 id="nested-functions">Nested Functions</h2>
+<p>Now that we have understood the basics of functions in Python, Let's dive a little deeper.</p>
+<p>Take this function as an example</p>
+<pre><code class="language-py">def prefix(prefix):
+    def hello(name):
+        print(f"{prefix} Hello, {name}!")
+    return hello
+
+print_debug = prefix("DEBUG :")
+print_debug("shekhar")
+
+print_warning = prefix("Warning :")
+print_warning("Opps!")
+</code></pre>
+<p><strong>Output</strong></p>
+<pre><code class="language-bash">DEBUG : Hello, shekhar
+Warning :Hello, Opps!
+</code></pre>
+<p>Here prefix("DEBUG :") returns the <strong>reference to function hello</strong> with prefix argument as "DEBUG :"</p>
+<p>{{&lt; image src="explanation.png" alt="How nested functions work in python" &gt;}}</p>
+<h2 id="creating-function-decorators">Creating Function Decorators</h2>
+<p>Let's understand decorators through an example. Consider this code below.</p>
+<pre><code class="language-py">def reverse(func):
+    def reverse_caller(text):
+        func(text[::-1])
+
+    return reverse_caller
+
+rev_print = reverse(print)
+rev_print("Hello Shekhar!")
+
+rev_print = reverse(print_warning)
+rev_print("Shekhar!")
+</code></pre>
+<h6 id="output">Output</h6>
+<pre><code class="language-bash">!rahkehS olleH
+Warning : Hello, !rahkehS!
+</code></pre>
+<p>Now this function reverse() is taking a function reference as a parameter and returning a function :hushed:<br />
+This is what we call a Decorator, it's a function that takes a function as parameter, modifies it and returns the function.</p>
+<p>Another way to do that is as following</p>
+<pre><code class="language-py">@reverse
+def greet(name):
+    print(f"Hello {name}")
+
+greet("Shekhar")
+</code></pre>
+<pre><code class="language-bash">Hello rahkehS
+</code></pre>
+<p><em>This is exactly the same as greet=reverse(greet).</em></p>
+<p><em>The @reverse is just a syntax to make things tidy and easier to read</em></p>
+<p>The general template to make a decorator is as follows</p>
+<pre><code class="language-py">def decorator_name(func):
+    def wrapper(func):
+        #DO SOMETHING
+    return wrapper
+</code></pre>
+<h3 id="exercise">Exercise</h3>
+<p>Now that we have understood the basics, let's write a decorator that will Print "BEFORE" runs the function and print "AFTER".</p>
+<p>I'd highly recommend you to try it on your own before beginning further.</p>
+<p>Following our decorator template we have the following</p>
+<pre><code class="language-py">def before_after(func):
+    def wrapper(name):
+        print("Before")
+        func(name)
+        print("After")
+    return wrapper
+
+@before_after
+def greet(name):
+    print(f"Hello {name}")
+
+
+greet("shekhar")
+</code></pre>
+<p><strong>Output</strong></p>
+<p>And it works as expected :smiley:</p>
+<pre><code class="language-bash">Before
+Hello shekhar
+After
+</code></pre>
+<h2 id="handling-arguments-in-decorators">Handling arguments in Decorators</h2>
+<p>Now take our previous example greet and try to add a default argument to it and see what happens.</p>
+<pre><code class="language-py">@before_after
+def greet(name="Shekhar"):
+    print(f"Hello {name}")
+</code></pre>
+<p>What do think? will it work or not?</p>
+<p>Let's see the output</p>
+<pre><code class="language-bash">TypeError: before_after.&lt;locals&gt;.wrapper() missing 1 required positional argument: 'name'
+</code></pre>
+<p>It failed because when we decorate a function and use it, then we are not actually using our original function.<br />
+We are using the nested wrapper function. If we pass greet() with no arguments then our wrapper function will also receive no arguments but it requires one "name" argument to function properly.</p>
+<p>That's why the error says that "wapper() missing 1 required positional argument: name"</p>
+<p>Let's take another example to understand this concept more.</p>
+<pre><code class="language-py">def greet(name):
+    print(f"Hello {name}")
+
+greet("Shekhar")
+
+print(greet.__name__)
+
+@before_after
+def greet(name):
+    print(f"Hello {name}")
+
+greet("Shekhar")
+
+print(greet.__name__)
+</code></pre>
+<h6 id="output">Output</h6>
+<pre><code class="language-bash">Hello Shekhar
+greet
+Hello rahkehS
+wrapper
+</code></pre>
+<p>The <strong>__name__</strong> is an in-built property in Python that returns the name of the object and as I mentioned before, function names are references to the function objects we can get their names (or you can say the name of the function object).</p>
+<p>One <em>interesting thing</em> to notice here is that when we add our decorator to the function, the name of the function changes to the wrapper (because  that was the name of the wrapper function in our decorator). This shows that when we use the decorated function, we are actually using the wrapper function from the decorator.</p>
+<h3 id="how-to-improve-our-decorators">How to improve our decorators?</h3>
+<p>As we saw, it is really important to make our decorators in such a way that they can handle these kinds of cases. We will face a similar error if we try to pass more than one argument to our decorated function.</p>
+<p>To solve these kinds of issues we use *args and **kwargs, they translate to argument and keyword arguments respectively.<br />
+I will be explaining these in much more detail in an upcoming blog in which I will share how Python actually runs and how functions are executed.</p>
+<p><strong>*</strong> and <strong>**</strong> actually hold meaning in Python, these are called unpacking operators.</p>
+<ul>
+<li><strong>*</strong> Expands any variable as List</li>
+<li><strong>**</strong> Expands any variable as Dictionary</li>
+</ul>
+<p>For example</p>
+<pre><code class="language-py">a = [1,2,3]
+b = [3,4,5]
+c1 = [*a,*b]
+c2 = [a,b]
+
+dict1 = {'a':1,'b':2}
+dict2 = {'b':2,'c':3}
+dict3 = {**dict1,**dict2}
+
+print(f"c1:{c1}\n c2:{c2}")
+print(dict3)
+</code></pre>
+<pre><code class="language-bash">c1:[1, 2, 3, 3, 4, 5]
+c2:[[1, 2, 3], [3, 4, 5]]
+{'a': 1, 'b': 2, 'c': 3}
+</code></pre>
+<p>The *args enables us to send any number of arguments to the function and **kwargs enables us to pass in any number of keyworded arguments when calling the function.</p>
+<p>For example</p>
+<pre><code class="language-py">def testing(*args,**kwargs):
+    print(f"Args = {args}")
+    print(f"KWargs = {kwargs}")
+
+testing("hello",1,name="shekhar")
+</code></pre>
+<pre><code class="language-bash">Args = ('hello', 1)
+KWargs = {'name': 'shekhar'}
+</code></pre>
+<p>"args" and "kwargs" is the general naming convention, You can use any other name following the same * and ** pattern and it will work the same way.</p>
+<h3 id="using-args-and-kwargs-in-decorators">Using Args and Kwargs in Decorators</h3>
+<pre><code class="language-py">def before_after(func):
+    def wrapper(*args, **kwargs):
+        print("Before")
+        func(*args, **kwargs)
+        print("After")
+
+    return wrapper
+
+
+@before_after
+def greet(name="Shekhar"):
+    print(f"Hello {name}")
+
+
+greet()
+greet("joey")
+</code></pre>
+<pre><code class="language-bash">Before
+Hello Shekhar
+After
+Before
+Hello joey
+After
+</code></pre>
+<h3 id="another-exercise">Another Exercise</h3>
+<p>Let's write a decorator to run the decorated function thrice and return a 3 value tuple with results.</p>
+<pre><code class="language-py">import random
+
+def do_thrice(func):
+    print(f"Adding decorator to {func.__name__}")
+
+    def wrapper():
+        return (func(), func(), func())
+
+    return wrapper
+
+
+@do_thrice
+def roll_dice():
+    return random.randint(1, 6)
+
+print(roll_dice())
+</code></pre>
+<p><strong>Output</strong></p>
+<pre><code class="language-bash">Adding decorator to roll_dice
+(2, 2, 1)
+</code></pre>
+<h2 id="real-use-cases">Real use Cases</h2>
+<p>Now that we have seen enough examples of creating decorators, let's see what are some real use cases in which decorators are extremely useful.</p>
+<h2 id="measuring-performance-of-other-functions">Measuring Performance of other functions</h2>
+<p>Suppose you have many functions in your code and you want to optimise your code. Now instead of writing the code for getting the runtime and memory usage for each function, we can simply write a decorator and apply it to all the functions we want to test.</p>
+<p>Let's take this example in which we are calculating function runtime using perf_counter (It's just like a stopwatch) and calculating memory usage using tracemalloc function. (It's part of the standard library, will be making a dedicated blog on this topic).</p>
+<pre><code class="language-py">from functools import wraps
+import tracemalloc
+from time import perf_counter 
+
+def measure_performance(func):
+    @wraps(func)  # It is a inbuilt decorator in python
+    # When used, the decorated function name remains the same
+
+    def wrapper(*args, **kwargs):
+        tracemalloc.start()
+        start_time = perf_counter()
+        func(*args, **kwargs)
+        current, peak = tracemalloc.get_traced_memory()
+        finish_time = perf_counter()
+        print(f"Function: {func.__name__}")
+        print(
+            f"Memory usage:\t\t {current / 10**6:.6f} MB \n"
+            f"Peak memory usage:\t {peak / 10**6:.6f} MB "
+        )
+        print(f"Time elapsed is seconds: {finish_time - start_time:.6f}")
+        print(f'{"-"*40}')
+        tracemalloc.stop()
+
+    return wrapper
+
+
+@measure_performance
+def function1():
+    lis = []
+    for a in range(1000000):
+        if a % 2 == 0:
+            lis.append(1)
+        else:
+            lis.append(0)
+
+
+@measure_performance
+def function2():
+    lis = [1 if a % 2 == 0 else 0 for a in range(1000000)]
+
+
+function1()
+function2()
+</code></pre>
+<pre><code class="language-bash">Function: function1
+Memory usage:            0.000000 MB
+Peak memory usage:       8.448768 MB
+Time elapsed is seconds: 0.329556
+----------------------------------------
+Function: function2
+Memory usage:            0.000000 MB
+Peak memory usage:       8.448920 MB
+Time elapsed is seconds: 0.294334
+----------------------------------------
+</code></pre>
+<p>We simply added 2 decorators to our functions instead of adding the whole code to each function. This makes our code much more concise and readable.</p>
+<h3 id="dynamically-adding-functionality">Dynamically adding functionality</h3>
+<p>Many Libraries such as Flask or FastAPI use decorators extensively to create API routes.<br />
+For example in FastAPI, we use something like this</p>
+<pre><code class="language-py">@app.get("/helloWorld", tags=["Testing"])
+def read_root():
+    return {"Hello": "World"}
+</code></pre>
+<p>This creates a get endpoint /helloworld which triggers read_root() function whenever called.</p>
+<h2 id="wrap-up">Wrap-up</h2>
+<p>That was it for this blog.</p>
+<p>I hope you learned something new today.</p>
+<p>If you did, please like/share so that it reaches others as well.</p>
+<p>Connect with me on <a href="https://twitter.com/shekhu_verma?ref=localhost">@twitter</a> where I write regularly about software development and solopreneurship.</p>
+<p>:white_check_mark: Here are some more posts you might be interested in.</p>
+<ol>
+<li><a href="https://shekharverma.com/posts/increasing_python_speed/?ref=localhost">How I improved my python code Performance by 371%!</a></li>
+<li><a href="https://shekharverma.com/posts/pysusb_and_rp2040/?ref=localhost">RaspberryPi PICO and PYUSB: Unlocking the Power of Custom USB Endpoints</a></li>
+<li><a href="https://shekharverma.com/posts/why_i_started_this_blog/?ref=localhost">Why I Started This Blog?</a></li>
+</ol>
+<p>Thank you for reading :smile:</p>
+
+
+            </section>
+
+        </article>
+    </main>
+    <footer class="page-footer">
+        <h3>Shekhar Verma</h3>
+            <p>Thoughts, stories and ideas.</p>
+        <p><a href="http://localhost:2368">Read more posts →</a></p>
+        <a class="powered" href="https://ghost.org" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 156 156"><g fill="none" fill-rule="evenodd"><rect fill="#15212B" width="156" height="156" rx="27"/><g transform="translate(36 36)" fill="#F6F8FA"><path d="M0 71.007A4.004 4.004 0 014 67h26a4 4 0 014 4.007v8.986A4.004 4.004 0 0130 84H4a4 4 0 01-4-4.007v-8.986zM50 71.007A4.004 4.004 0 0154 67h26a4 4 0 014 4.007v8.986A4.004 4.004 0 0180 84H54a4 4 0 01-4-4.007v-8.986z"/><rect y="34" width="84" height="17" rx="4"/><path d="M0 4.007A4.007 4.007 0 014.007 0h41.986A4.003 4.003 0 0150 4.007v8.986A4.007 4.007 0 0145.993 17H4.007A4.003 4.003 0 010 12.993V4.007z"/><rect x="67" width="17" height="17" rx="4"/></g></g></svg> Published with Ghost</a>
+    </footer>
+    
+</body>
+</html>
