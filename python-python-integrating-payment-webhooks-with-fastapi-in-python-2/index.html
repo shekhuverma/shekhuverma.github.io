@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <title>Integrating payment Webhooks with FastAPI in Python! - 2</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <link rel="preload" as="style" href="/assets/built/screen.css?v=a0f7290c82" />
+    <link rel="preload" as="script" href="/assets/built/casper.js?v=a0f7290c82" />
+
+    <link rel="stylesheet" type="text/css" href="/assets/built/screen.css?v=a0f7290c82" />
+
+    <meta name="description" content="How to create to your Webhook endpoint in FastAPI and save the data in a database.">
+    <link rel="canonical" href="http://localhost:2368/python-python-integrating-payment-webhooks-with-fastapi-in-python-2/">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <link rel="amphtml" href="http://localhost:2368/python-python-integrating-payment-webhooks-with-fastapi-in-python-2/amp/">
+    
+    <meta property="og:site_name" content="Shekhar Verma">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Integrating payment Webhooks with FastAPI in Python! - 2">
+    <meta property="og:description" content="How to create to your Webhook endpoint in FastAPI and save the data in a database.">
+    <meta property="og:url" content="http://localhost:2368/python-python-integrating-payment-webhooks-with-fastapi-in-python-2/">
+    <meta property="og:image" content="http://localhost:2368/content/images/2023/11/cover_image.jpg">
+    <meta property="article:published_time" content="2023-11-23T09:31:30.000Z">
+    <meta property="article:modified_time" content="2023-11-27T07:23:02.000Z">
+    <meta property="article:tag" content="FastAPI">
+    <meta property="article:tag" content="Python">
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Integrating payment Webhooks with FastAPI in Python! - 2">
+    <meta name="twitter:description" content="How to create to your Webhook endpoint in FastAPI and save the data in a database.">
+    <meta name="twitter:url" content="http://localhost:2368/python-python-integrating-payment-webhooks-with-fastapi-in-python-2/">
+    <meta name="twitter:image" content="http://localhost:2368/content/images/2023/11/cover_image.jpg">
+    <meta name="twitter:label1" content="Written by">
+    <meta name="twitter:data1" content="Shekhar Verma">
+    <meta name="twitter:label2" content="Filed under">
+    <meta name="twitter:data2" content="FastAPI, Python">
+    <meta name="twitter:site" content="@shekhu_verma">
+    <meta name="twitter:creator" content="@shekhu_verma">
+    <meta property="og:image:width" content="1728">
+    <meta property="og:image:height" content="1152">
+    
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "publisher": {
+        "@type": "Organization",
+        "name": "Shekhar Verma",
+        "url": "http://localhost:2368/",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "http://localhost:2368/favicon.ico"
+        }
+    },
+    "author": {
+        "@type": "Person",
+        "name": "Shekhar Verma",
+        "image": {
+            "@type": "ImageObject",
+            "url": "http://localhost:2368/content/images/2023/11/1679463984748.png",
+            "width": 400,
+            "height": 400
+        },
+        "url": "http://localhost:2368/author/shekhar/",
+        "sameAs": [
+            "https://twitter.com/shekhu_verma"
+        ]
+    },
+    "headline": "Integrating payment Webhooks with FastAPI in Python! - 2",
+    "url": "http://localhost:2368/python-python-integrating-payment-webhooks-with-fastapi-in-python-2/",
+    "datePublished": "2023-11-23T09:31:30.000Z",
+    "dateModified": "2023-11-27T07:23:02.000Z",
+    "image": {
+        "@type": "ImageObject",
+        "url": "http://localhost:2368/content/images/2023/11/cover_image.jpg",
+        "width": 1728,
+        "height": 1152
+    },
+    "keywords": "FastAPI, Python",
+    "description": "\n\n\nIn the previous post, we saw how to create endpoints to receive webhooks using FastAPI in Python. We created a simple FastAPI App to receive the data whenever a payment is made on Razorpay. If you haven’t read that post Check that out here before proceeding further.\n\n\nIn this post, we are going one step further. We are going to:-\n\n\n 1. Create Schemas and Validate our data using Pydantic\n 2. Connect our FastAPI app with a Postgres Database\n 3. Save the webhook data in the database.\n\n\nSo let’s ",
+    "mainEntityOfPage": "http://localhost:2368/python-python-integrating-payment-webhooks-with-fastapi-in-python-2/"
+}
+    </script>
+
+    <meta name="generator" content="Ghost 5.74">
+    <link rel="alternate" type="application/rss+xml" title="Shekhar Verma" href="http://localhost:2368/rss/">
+    <script defer src="https://cdn.jsdelivr.net/ghost/portal@~2.36/umd/portal.min.js" data-i18n="false" data-ghost="http://localhost:2368/" data-key="faa7d54788c8c1c8975f4dd2b0" data-api="http://localhost:2368/ghost/api/content/" crossorigin="anonymous"></script><style id="gh-members-styles">.gh-post-upgrade-cta-content,
+.gh-post-upgrade-cta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    text-align: center;
+    width: 100%;
+    color: #ffffff;
+    font-size: 16px;
+}
+
+.gh-post-upgrade-cta-content {
+    border-radius: 8px;
+    padding: 40px 4vw;
+}
+
+.gh-post-upgrade-cta h2 {
+    color: #ffffff;
+    font-size: 28px;
+    letter-spacing: -0.2px;
+    margin: 0;
+    padding: 0;
+}
+
+.gh-post-upgrade-cta p {
+    margin: 20px 0 0;
+    padding: 0;
+}
+
+.gh-post-upgrade-cta small {
+    font-size: 16px;
+    letter-spacing: -0.2px;
+}
+
+.gh-post-upgrade-cta a {
+    color: #ffffff;
+    cursor: pointer;
+    font-weight: 500;
+    box-shadow: none;
+    text-decoration: underline;
+}
+
+.gh-post-upgrade-cta a:hover {
+    color: #ffffff;
+    opacity: 0.8;
+    box-shadow: none;
+    text-decoration: underline;
+}
+
+.gh-post-upgrade-cta a.gh-btn {
+    display: block;
+    background: #ffffff;
+    text-decoration: none;
+    margin: 28px 0 0;
+    padding: 8px 18px;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.gh-post-upgrade-cta a.gh-btn:hover {
+    opacity: 0.92;
+}</style>
+    <script defer src="https://cdn.jsdelivr.net/ghost/sodo-search@~1.1/umd/sodo-search.min.js" data-key="faa7d54788c8c1c8975f4dd2b0" data-styles="https://cdn.jsdelivr.net/ghost/sodo-search@~1.1/umd/main.css" data-sodo-search="http://localhost:2368/" crossorigin="anonymous"></script>
+    
+    <link href="http://localhost:2368/webmentions/receive/" rel="webmention">
+    <script defer src="/public/member-attribution.min.js?v=a0f7290c82"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/themes/prism-tomorrow.min.css" integrity="sha512-vswe+cgvic/XBoF1OcM/TeJ2FW0OofqAVdCZiEYkd6dwGXthvkSFWOoGGJgS2CW70VK5dQM5Oh+7ne47s74VTg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1SH4GNF39D"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-1SH4GNF39D');
+</script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.css" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/contrib/auto-render.min.js" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script><style>:root {--ghost-accent-color: #000000;}</style>
+
+</head>
+<body class="post-template tag-fastapi tag-python-2 tag-hash-import-2023-11-23-15-01 is-head-left-logo has-cover">
+<div class="viewport">
+
+    <header id="gh-head" class="gh-head outer">
+        <div class="gh-head-inner inner">
+            <div class="gh-head-brand">
+                <a class="gh-head-logo no-image" href="http://localhost:2368">
+                        Shekhar Verma
+                </a>
+                <button class="gh-search gh-icon-btn" aria-label="Search this site" data-ghost-search><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></button>
+                <button class="gh-burger"></button>
+            </div>
+
+            <nav class="gh-head-menu">
+                <ul class="nav">
+    <li class="nav-home"><a href="http://localhost:2368/">Home</a></li>
+    <li class="nav-about"><a href="https://shekharverma.com/about/">About</a></li>
+    <li class="nav-contact"><a href="https://shekharverma.com/contact/">Contact</a></li>
+    <li class="nav-projects"><a href="https://shekharverma.com/projects">Projects</a></li>
+</ul>
+
+            </nav>
+
+            <div class="gh-head-actions">
+                    <button class="gh-search gh-icon-btn" data-ghost-search><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></button>
+                    <div class="gh-head-members">
+                                <a class="gh-head-link" href="#/portal/signin" data-portal="signin">Sign in</a>
+                                <a class="gh-head-button" href="#/portal/signup" data-portal="signup">Subscribe</a>
+                    </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="site-content">
+        
+
+
+
+<main id="site-main" class="site-main">
+<article class="article post tag-fastapi tag-python-2 tag-hash-import-2023-11-23-15-01 ">
+
+    <header class="article-header gh-canvas">
+
+        <div class="article-tag post-card-tags">
+                <span class="post-card-primary-tag">
+                    <a href="/tag/fastapi/">FastAPI</a>
+                </span>
+        </div>
+
+        <h1 class="article-title">Integrating payment Webhooks with FastAPI in Python! - 2</h1>
+
+
+        <div class="article-byline">
+        <section class="article-byline-content">
+
+            <ul class="author-list">
+                <li class="author-list-item">
+                    <a href="/author/shekhar/" class="author-avatar">
+                        <img class="author-profile-image" src="/content/images/size/w100/2023/11/1679463984748.png" alt="Shekhar Verma" />
+                    </a>
+                </li>
+            </ul>
+
+            <div class="article-byline-meta">
+                <h4 class="author-name"><a href="/author/shekhar/">Shekhar Verma</a></h4>
+                <div class="byline-meta-content">
+                    <time class="byline-meta-date" datetime="2023-11-23">Nov 23, 2023</time>
+                        <span class="byline-reading-time"><span class="bull">&bull;</span> 7 min read</span>
+                </div>
+            </div>
+
+        </section>
+        </div>
+
+            <figure class="article-image">
+                <img
+                    srcset="/content/images/size/w300/2023/11/cover_image.jpg 300w,
+                            /content/images/size/w600/2023/11/cover_image.jpg 600w,
+                            /content/images/size/w1000/2023/11/cover_image.jpg 1000w,
+                            /content/images/size/w2000/2023/11/cover_image.jpg 2000w"
+                    sizes="(min-width: 1400px) 1400px, 92vw"
+                    src="/content/images/size/w2000/2023/11/cover_image.jpg"
+                    alt="Integrating payment Webhooks with FastAPI in Python! - 2"
+                />
+            </figure>
+
+    </header>
+
+    <section class="gh-content gh-canvas">
+        <!--more-->
+<p>In the previous post, we saw how to create endpoints to receive webhooks using FastAPI in Python. We created a simple FastAPI App to receive the data whenever a payment is made on Razorpay. If you haven’t read that post Check that out <a href="https://shekharverma.com/posts/payment_webhooks_fastapi_1/?ref=localhost">here</a> before proceeding further.</p>
+<p>In this post, we are going one step further. We are going to:-</p>
+<ol>
+<li>Create Schemas and Validate our data using Pydantic</li>
+<li>Connect our FastAPI app with a Postgres Database</li>
+<li>Save the webhook data in the database.</li>
+</ol>
+<p>So let’s jump in</p>
+<h2 id="pydantic">Pydantic</h2>
+<p>Pydantic is a data validation and parsing library in Python which Leverages Python’s Type Hinting. It is being used extensively in FastAPI because it has built-in JSON encoding and decoding support.</p>
+<p>Some benefits of using Pydantic :</p>
+<ul>
+<li>Integrates extremely well with all major IDEs.</li>
+<li>Easy Data validation and Error Handling</li>
+<li>Extremely fast because it is built on RUST</li>
+</ul>
+<h4 id="how-does-pydantic-work">How Does Pydantic work?</h4>
+<p>It basically allows users to create data models using Python classes. These classes inherits from BaseModel class in Pydantic. It can include typehints, Default Values and validation rules.<br>
+Whenever we create an instance of this data model, Pydantic checks all the fields with their respective data types and validation rules. If the data does not meet the requirements, it raises an error otherwise populates the data model with the data and returns the class instance.</p>
+<p>Let’s install Pydantic</p>
+<pre><code>pip install pydantic
+</code></pre>
+<p>Let’s start with a very basic example</p>
+<pre><code class="language-py">from pydantic import BaseModel
+
+class dog(BaseModel):
+    name: str
+    age: int
+
+dog1 = dog(name="Joey", age=3)
+print(dog1)
+</code></pre>
+<h5 id="output">Output</h5>
+<pre><code>name='Joey' age=3
+</code></pre>
+<pre><code class="language-py">from pydantic import BaseModel
+
+class dog(BaseModel):
+    name: str
+    age: int
+
+dog1 = dog(name="Joey", age="3")
+print(dog1)
+print(type(dog1.age))
+</code></pre>
+<h5 id="output">Output</h5>
+<pre><code>name='Joey' age=3
+&lt;class 'int'&gt;
+</code></pre>
+<p>As you can see in the example above, it automatically converted the <strong>string “3”</strong> to <strong>integer 3.</strong></p>
+<p>Let’s look at another example</p>
+<pre><code class="language-py">from pydantic import BaseModel
+
+class dog(BaseModel):
+    name: str
+    age: int
+
+dog1 = dog(name="Joey", age="Three")
+print(dog1)
+print(type(dog1.age))
+</code></pre>
+<h5 id="output">Output</h5>
+<pre><code class="language-py">    dog1 = dog(name="Joey", age="Three")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "pydantic\main.py", line 341, in pydantic.main.BaseModel.__init__
+pydantic.error_wrappers.ValidationError: 1 validation error for dog age
+value is not a valid integer (type=type_error.integer)
+</code></pre>
+<p><strong>Here it gave a validation error that the “age” is not a valid int.</strong></p>
+<h2 id="postgresql">PostgreSQL</h2>
+<p>PostgreSQL, also known as Postgres, is a robust and feature-rich open-source relational database management system (RDBMS). It offers advanced functionality, scalability, and reliability, making it a preferred choice for many businesses and developers worldwide.</p>
+<h3 id="installing-postgresql">Installing PostgreSQL</h3>
+<p>It’s a very simple process, you can find all the details <a href="https://www.postgresqltutorial.com/postgresql-getting-started/install-postgresql/?ref=localhost">here</a>.</p>
+<h3 id="creating-a-database">Creating a Database</h3>
+<p>Now we will create a Test database inside postgres so that we can store our data in it.</p>
+<p><strong>Follow these steps</strong></p>
+<ol>
+<li>Open PG Admin, it’s a utility that will get installed automatically by deafult.</li>
+</ol>
+<p><img src="http://localhost:2368/content/images/2023/11/pg_admin.png" alt="pg_admin.png" loading="lazy"></p>
+<ol start="2">
+<li>Object -&gt; Register Server,  Enter any name you like (in my case I am using “Learning FastAPI”).</li>
+</ol>
+<p><em>Enter Other details as follows :-</em></p>
+<p>Host name = As we are currently deploying only on our local machine we will use localhost<br>
+Username = postgres (let’s keep it default for now)<br>
+Password = Enter the password you choose when installing the software</p>
+<p><img src="http://localhost:2368/content/images/2023/11/image2-1.png" alt="image2.png" loading="lazy"></p>
+<p><img src="http://localhost:2368/content/images/2023/11/image3-1.png" alt="image3.png" loading="lazy"></p>
+<ol start="3">
+<li>
+<p>Click on save.<br>
+<img src="http://localhost:2368/content/images/2023/11/image4.png" alt="image4.png" loading="lazy"></p>
+</li>
+<li>
+<p>Now right click on database -&gt; Create -&gt; Database-&gt; Enter database Name -&gt; Save</p>
+</li>
+</ol>
+<p><img src="http://localhost:2368/content/images/2023/11/image5.png" alt="image5.png" loading="lazy"></p>
+<p><strong>Now we have successfully created a database in PostgreSQL</strong></p>
+<h2 id="connecting-the-database-with-python">Connecting the database with Python</h2>
+<p>First let’s install the libraries</p>
+<pre><code>pip install sqlalchemy
+Pip install psycopg2
+</code></pre>
+<p>Now to talk to our database we use something known as “Object Relational Mapping”.  Python does not support it by default so we are going to use a library called “sqlalchemy”.It basically converts(“maps”) Objects in code with relations in database.</p>
+<p>We create a class in python which represents a table in database and each attribute of class representing a column and its data type. Now whenever we will create a new Object of this class, it will represent a row in the database.</p>
+<p>The Sqlalchemy only provided the ORM capability , it does not talk to the database directly. To connect it with the database we actually need a database driver/adapter library that is specifc for the database to be used.</p>
+<p>As we are using postgresql, we are using <em>psycopg2</em> as our driver</p>
+<p>Let’s jump into the code</p>
+<pre><code class="language-python">from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy import Column, Integer, String, FLOAT
+
+# This is the potgres server URL
+SQLALCHEMY_DATABASE_URL = "postgresql://postgres:&lt;password&gt;@localhost:5432/Razorpay"
+
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
+
+# Each instance of SessionLocal class will be a database session
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+Base = declarative_base()
+
+class Users(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    txid = Column(String, unique=True)
+    amount = Column(FLOAT)
+    email_id = Column(String)
+    contact_no = Column(String)
+
+# This creates a table named "Users" in the database
+def create_table():
+    return Base.metadata.create_all(bind=engine)
+
+create_table()
+
+</code></pre>
+<p>This code creates a table named “users” in our database newly created database.<br>
+SQLALCHEMY_DATABASE_URL is the URL on which points to our database and has the following format.</p>
+<p><em>postgresql://[user[:password]@][netloc][:port][/dbname]</em></p>
+<pre><code class="language-python">class Users(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    txid = Column(String, unique=True)
+    amount = Column(FLOAT)
+    email_id = Column(String)
+    contact_no = Column(String)
+</code></pre>
+<p>This class defines the schema for the Users table, it defines the column names and their data types.<br>
+The id column is the index column, it gets incremented every time we make a new entry to the database.</p>
+<p>Let's Run this code</p>
+<p>Now if we see in Pg admin, we can see our newly created table with all the defined columns.</p>
+<p><img src="http://localhost:2368/content/images/2023/11/image6-1.png" alt="image6.png" loading="lazy"></p>
+<h2 id="defining-schema">Defining Schema</h2>
+<p>Now that we know the basics and everything is working, let’s integrate everything into FastAPI.</p>
+<p>Firstly we need to define a Pydantic model to receive the incoming data from Razorpay.</p>
+<p>If you go to this <a href="https://razorpay.com/docs/webhooks/payloads/payments/?ref=localhost">Razorpay Docs</a>, it clearly describes the JSON payload format in which Razorpay sends the data to the webhook. Right now we are only concerned about the payment captured format to check for successful payment.Now we have to convert this JSON to a Pydantic model for easy data parsing and validation.</p>
+<p><em>We have 2 options</em></p>
+<ol>
+<li>Manually create the Pydantic model using JSON</li>
+<li>Use a automated tool to do this for us.</li>
+</ol>
+<p>Offcourse we are going with the 2nd option :satisfied:</p>
+<p>We are going to use this tool <a href="https://jsontopydantic.com/?ref=localhost">Jsontopydantic</a>, just copy paste the JSON on the left section and it will create Pydantic Model for us.</p>
+<p>This is our Pydantic model , save this file as schemas.py</p>
+<pre><code class="language-py">#schemas.py
+from pydantic import BaseModel
+from typing import Any
+
+class AcquirerData(BaseModel):
+    rrn: str | None
+
+class Upi(BaseModel):
+    payer_account_type: str
+    vpa: str
+
+class Entity (BaseModel):
+    id: str
+    entity: str
+    amount: int
+    currency: str
+    status: str
+    order_id: str
+    invoice_id: Any
+    international: bool
+    method: str
+    amount_refunded: int
+    refund_status: Any
+    captured: bool
+    description: Any
+    card_id: Any
+    bank: Any
+    wallet: Any
+    vpa: str | None
+    email: str
+    contact: str
+    notes: dict
+    fee: Any
+    tax: Any
+    error_code: Any
+    error_description: Any
+    error_source: Any
+    error_step: Any
+    error_reason: Any
+    acquirer_data: AcquirerData
+    created_at: int
+    upi: Upi | None = None
+
+class Payment(BaseModel):
+    entity: Entity
+
+class Payload(BaseModel):
+    payment: Payment
+
+class Model(BaseModel):
+    entity: str
+    account_id: str
+    event: str
+    contains: list
+    payload: Payload
+    created_at: int
+
+</code></pre>
+<p>We have defined the paydantic models or schema for incoming data from razorpay but we have to do the same for saving the data into database</p>
+<p>Add the following Pydantic models to schemas.py</p>
+<pre><code class="language-py">class BaseUser(BaseModel):
+    txid: str
+    amount: float
+    email_id: str
+    contact_no: str
+
+class User(BaseUser):
+    id: int
+
+    class Config:
+        orm_mode = True
+</code></pre>
+<p>Pydantic's orm_mode will tell the Pydantic model to read the data even if it is not a dict, but an ORM model (or any other arbitrary object with attributes).</p>
+<p>This way, instead of only trying to get the id value from a dict, as in:</p>
+<pre><code>  id = data["id"]
+</code></pre>
+<p>it will also try to get it from an attribute, as in:</p>
+<pre><code>  id = data.id
+</code></pre>
+<p>And with this, the Pydantic model is compatible with ORMs, and you can just declare it in the response_model argument in your path operations.</p>
+<h2 id="changing-the-webhook-endpoint">Changing the Webhook Endpoint</h2>
+<p>We have to change the endpoint which we created earlier to include pydantic model</p>
+<pre><code class="language-python">@app.post("/webhook")
+async def receive_webhook(
+    request: Request,
+    RP_reponse: Model,
+):
+    print(RP_reponse)
+</code></pre>
+<p>Here RP_response if of type Model, which is our Pydantic model</p>
+<p>Let’s test this out, run the uvicorn server and go to <strong><a href="http://127.0.0.1/docs?ref=localhost">http://127.0.0.1/docs</a></strong></p>
+<ol>
+<li>
+<p>Click on the webhook endpoint and click “Try it out” on the right hand side.</p>
+</li>
+<li>
+<p>In the request body , copy paste the Example JSON payload (Sasme that we used to generate the Pydantic Model to see whether our endpoint is working correctly or not <a href="#defining-schema">here</a>)</p>
+</li>
+<li>
+<p>Hit on Excecute button.</p>
+</li>
+</ol>
+<p>Upon executing we can see that we have received the data in our print statement.</p>
+<p><img src="http://localhost:2368/content/images/2023/11/image7-1.png" alt="image7.png" loading="lazy"></p>
+<p><strong>Quick Tip  :</strong> You can use the docs to quick test all your endpoints, it is really useful when building a complex app.</p>
+<h2 id="saving-the-data-in-database">Saving the data in Database</h2>
+<p>Now let’s save the data into database :grimacing:</p>
+<pre><code class="language-py">async def create_user(user: BaseUser, db: Session):
+    contact = Users(**user.dict())
+    db.add(contact)
+    db.commit()
+    db.refresh(contact)
+</code></pre>
+<p>This function takes the data (as a pydantic model) and adds it to our database.</p>
+<p>Now again run the server and go to docs <a href="http://127.0.0.1/docs?ref=localhost">http://127.0.0.1/docs</a> and test the /webhook endpoint as showed above.</p>
+<p>This time we should have the data in our database.</p>
+<ul>
+<li>Go to PG Admin</li>
+<li>Click on the database “users” and click on query tool to run the following SQL command</li>
+<li>Select * from users;</li>
+<li>Hit F5 to execute the command and you should see the table as shown below.</li>
+</ul>
+<p><img src="http://localhost:2368/content/images/2023/11/image8-1.png" alt="image8.png" loading="lazy"></p>
+<p>Yayy!! we have successfully managed to save data in database.<br>
+You can also test it with the payment page which we created in <a href="https://shekharverma.com/posts/payment_webhooks_fastapi_1/?ref=localhost">Part 1</a> it will work the same way.</p>
+<p>If you found value in this, I’d really appreciate it if you join us and write me back.<br>
+And don’t forget to follow me on twitter <a href="https://twitter.com/shekhu_verma?ref=localhost">@shekhu_verma</a></p>
+<p>Thankyou for reading :smile:</p>
+
+    </section>
+
+
+</article>
+</main>
+
+    <section class="footer-cta outer">
+        <div class="inner">
+            <h2 class="footer-cta-title">Sign up for more like this.</h2>
+            <a class="footer-cta-button" href="#/portal" data-portal>
+                <div class="footer-cta-input">Enter your email</div>
+                <span>Subscribe</span>
+            </a>
+        </div>
+    </section>
+
+
+
+            <aside class="read-more-wrap outer">
+                <div class="read-more inner">
+                        
+<article class="post-card post">
+
+    <a class="post-card-image-link" href="/6-thinking-hats-/">
+
+        <img class="post-card-image"
+            srcset="/content/images/size/w300/2023/11/six_thinking_hats.png 300w,
+                    /content/images/size/w600/2023/11/six_thinking_hats.png 600w,
+                    /content/images/size/w1000/2023/11/six_thinking_hats.png 1000w,
+                    /content/images/size/w2000/2023/11/six_thinking_hats.png 2000w"
+            sizes="(max-width: 1000px) 400px, 800px"
+            src="/content/images/size/w600/2023/11/six_thinking_hats.png"
+            alt="6 Thinking Hats!"
+            loading="lazy"
+        />
+
+
+    </a>
+
+    <div class="post-card-content">
+
+        <a class="post-card-content-link" href="/6-thinking-hats-/">
+            <header class="post-card-header">
+                <div class="post-card-tags">
+                </div>
+                <h2 class="post-card-title">
+                    6 Thinking Hats!
+                </h2>
+            </header>
+                <div class="post-card-excerpt">Introduction
+
+
+Hello there, The "6 Thinking Hats" technique is a powerful tool/technique for improving decision-making and problem-solving in group settings. Developed by Dr. Edward de Bono, the technique encourages individuals to approach a problem or decision from multiple perspectives, rather than getting stuck in one way of thinking. I</div>
+        </a>
+
+        <footer class="post-card-meta">
+            <time class="post-card-meta-date" datetime="2023-11-23">Nov 23, 2023</time>
+                <span class="post-card-meta-length">2 min read</span>
+        </footer>
+
+    </div>
+
+</article>
+                        
+<article class="post-card post">
+
+    <a class="post-card-image-link" href="/why-i-started-this-blog-/">
+
+        <img class="post-card-image"
+            srcset="/content/images/size/w300/2023/11/why.jpg 300w,
+                    /content/images/size/w600/2023/11/why.jpg 600w,
+                    /content/images/size/w1000/2023/11/why.jpg 1000w,
+                    /content/images/size/w2000/2023/11/why.jpg 2000w"
+            sizes="(max-width: 1000px) 400px, 800px"
+            src="/content/images/size/w600/2023/11/why.jpg"
+            alt="Why I Started this blog?"
+            loading="lazy"
+        />
+
+
+    </a>
+
+    <div class="post-card-content">
+
+        <a class="post-card-content-link" href="/why-i-started-this-blog-/">
+            <header class="post-card-header">
+                <div class="post-card-tags">
+                </div>
+                <h2 class="post-card-title">
+                    Why I Started this blog?
+                </h2>
+            </header>
+                <div class="post-card-excerpt">Who am I?
+
+
+Before starting with the "why" let me take a moment to introduce myself, My name is Shekhar Verma (yes, you guessed it right :laughing:).
+
+I am an Electronics Engineer and I love to learn new things, create stuff and tinker with existing ones. I am currently Working</div>
+        </a>
+
+        <footer class="post-card-meta">
+            <time class="post-card-meta-date" datetime="2023-11-23">Nov 23, 2023</time>
+                <span class="post-card-meta-length">4 min read</span>
+        </footer>
+
+    </div>
+
+</article>
+                        
+<article class="post-card post featured">
+
+    <a class="post-card-image-link" href="/python-mastering-function-decorators-in-python/">
+
+        <img class="post-card-image"
+            srcset="/content/images/size/w300/2023/11/cover_image.png 300w,
+                    /content/images/size/w600/2023/11/cover_image.png 600w,
+                    /content/images/size/w1000/2023/11/cover_image.png 1000w,
+                    /content/images/size/w2000/2023/11/cover_image.png 2000w"
+            sizes="(max-width: 1000px) 400px, 800px"
+            src="/content/images/size/w600/2023/11/cover_image.png"
+            alt="Mastering Function Decorators in Python!"
+            loading="lazy"
+        />
+
+
+    </a>
+
+    <div class="post-card-content">
+
+        <a class="post-card-content-link" href="/python-mastering-function-decorators-in-python/">
+            <header class="post-card-header">
+                <div class="post-card-tags">
+                        <span class="post-card-featured"><svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M4.49365 4.58752C3.53115 6.03752 2.74365 7.70002 2.74365 9.25002C2.74365 10.6424 3.29678 11.9778 4.28134 12.9623C5.26591 13.9469 6.60127 14.5 7.99365 14.5C9.38604 14.5 10.7214 13.9469 11.706 12.9623C12.6905 11.9778 13.2437 10.6424 13.2437 9.25002C13.2437 6.00002 10.9937 3.50002 9.16865 1.68127L6.99365 6.25002L4.49365 4.58752Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg> Featured</span>
+                </div>
+                <h2 class="post-card-title">
+                    Mastering Function Decorators in Python!
+                </h2>
+            </header>
+                <div class="post-card-excerpt">Decorators are an extremely useful feature in Python language that allows programmers to change the behaviour of a function without changing the function. Sounds strange? Well Don't worry because
+
+
+In this post, We are going to:-
+
+
+ 1. Understand what are decorators and how they work.
+ 2. How to create</div>
+        </a>
+
+        <footer class="post-card-meta">
+            <time class="post-card-meta-date" datetime="2023-11-23">Nov 23, 2023</time>
+                <span class="post-card-meta-length">7 min read</span>
+        </footer>
+
+    </div>
+
+</article>
+                </div>
+            </aside>
+
+
+
+    </div>
+
+    <footer class="site-footer outer">
+        <div class="inner">
+            <section class="copyright"><a href="http://localhost:2368">Shekhar Verma</a> &copy; 2023</section>
+            <nav class="site-footer-nav">
+                <ul class="nav">
+    <li class="nav-sign-up"><a href="#/portal/">Sign up</a></li>
+    <li class="nav-linkedin"><a href="https://www.linkedin.com/in/shekharverma98/">Linkedin</a></li>
+    <li class="nav-github"><a href="https://github.com/shekhuverma">Github</a></li>
+</ul>
+
+            </nav>
+            <div class="gh-powered-by"><a href="https://ghost.org/" target="_blank" rel="noopener">Powered by Ghost</a></div>
+        </div>
+    </footer>
+
+</div>
+
+    <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="pswp__bg"></div>
+
+    <div class="pswp__scroll-wrap">
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script
+    src="https://code.jquery.com/jquery-3.5.1.min.js"
+    integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
+    crossorigin="anonymous">
+</script>
+<script src="/assets/built/casper.js?v=a0f7290c82"></script>
+<script>
+$(document).ready(function () {
+    // Mobile Menu Trigger
+    $('.gh-burger').click(function () {
+        $('body').toggleClass('gh-head-open');
+    });
+    // FitVids - Makes video embeds responsive
+    $(".gh-content").fitVids();
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/components/prism-core.min.js" integrity="sha512-9khQRAUBYEJDCDVP2yw3LRUQvjJ0Pjx0EShmaQjcHa6AXiOv6qHQu9lCAIR8O+/D8FtaCoJ2c0Tf9Xo7hYH01Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/plugins/autoloader/prism-autoloader.min.js" integrity="sha512-fTl/qcO1VgvKtOMApX2PdZzkziyr2stM65GYPLGuYMnuMm1z2JLJG6XVU7C/mR+E7xBUqCivykuhlzfqxXBXbg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+</body>
+</html>

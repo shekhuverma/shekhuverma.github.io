@@ -17,7 +17,7 @@
     <meta property="og:url" content="http://localhost:2368/how-i-improved-my-python-code-performance-by-371--/">
     <meta property="og:image" content="http://localhost:2368/content/images/2023/11/python.jpg">
     <meta property="article:published_time" content="2023-11-23T09:31:30.000Z">
-    <meta property="article:modified_time" content="2023-11-23T10:56:45.000Z">
+    <meta property="article:modified_time" content="2023-11-24T11:16:19.000Z">
     <meta property="article:tag" content="python">
     <meta property="article:tag" content="python optimisation">
     
@@ -65,7 +65,7 @@
     "headline": "How I improved my python code Performance by 371%!",
     "url": "http://localhost:2368/how-i-improved-my-python-code-performance-by-371--/",
     "datePublished": "2023-11-23T09:31:30.000Z",
-    "dateModified": "2023-11-23T10:56:45.000Z",
+    "dateModified": "2023-11-24T11:16:19.000Z",
     "image": {
         "@type": "ImageObject",
         "url": "http://localhost:2368/content/images/2023/11/python.jpg",
@@ -73,7 +73,7 @@
         "height": 480
     },
     "keywords": "python, python optimisation",
-    "description": "Introduction\n\n\nBefore getting started let’s discuss the problem statement in hand. I wanted to analyze some data stored in a text file. Each row contained four numerical values demlimited by a space, for a total of 46.66M rows. The size of the file is around 1.11 GB, and I am attaching a small screen shot of the data below so that you get the idea what it looks like.\n\n\n{{&lt; image src&#x3D;&quot;data.png&quot; alt&#x3D;&quot;Screenshot of data&quot;&gt;}}\n\n\nI needed to extract only the rows for a given value of the third column (",
+    "description": "Introduction\n\n\nBefore getting started let’s discuss the problem statement in hand. I wanted to analyze some data stored in a text file. Each row contained four numerical values demlimited by a space, for a total of 46.66M rows. The size of the file is around 1.11 GB, and I am attaching a small screen shot of the data below so that you get the idea what it looks like.\n\n\n\n\n\nI needed to extract only the rows for a given value of the third column (3100.10 in the image above)\n\nThe first thing I tried",
     "mainEntityOfPage": "http://localhost:2368/how-i-improved-my-python-code-performance-by-371--/"
 }
     </script>
@@ -1054,7 +1054,7 @@
         }
     }
 
-    :root {--ghost-accent-color: #878484;}
+    :root {--ghost-accent-color: #000000;}
     </style>
 
     <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
@@ -1090,7 +1090,7 @@
 
                 <h2 id="introduction">Introduction</h2>
 <p>Before getting started let’s discuss the problem statement in hand. I wanted to analyze some data stored in a text file. Each row contained four numerical values demlimited by a space, for a total of 46.66M rows. The size of the file is around 1.11 GB, and I am attaching a small screen shot of the data below so that you get the idea what it looks like.</p>
-<p>{{&lt; image src="data.png" alt="Screenshot of data"&gt;}}</p>
+<p></p>
 <p>I needed to extract only the rows for a given value of the third column (3100.10 in the image above)<br />
 The first thing I tried was to simply use numpy.genfromtxt() but it gave memory error as the data is too big to handle at once.</p>
 <p>I tried to segment the data into smaller chunks and do the same, but it was painfully slow :tired_face: so I tried various things to get the job done in the fastest possible way. I will show you the code along with the concepts I used to optimise my code.</p>
@@ -1252,7 +1252,7 @@ This is almost <strong>4.7 times increase in performance</strong> from where we 
 </tr>
 </tbody>
 </table>
-<p>{{&lt; image src="comparison_chart.jpeg" alt="Comparison Chart"&gt;}}</p>
+<p></p>
 <p>Thankyou for reading! :smile:</p>
 
 
