@@ -1,4 +1,124 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:media="http://search.yahoo.com/mrss/"><channel><title><![CDATA[Shekhar Verma]]></title><description><![CDATA[Thoughts, stories and ideas.]]></description><link>http://localhost:2368/</link><image><url>http://localhost:2368/favicon.png</url><title>Shekhar Verma</title><link>http://localhost:2368/</link></image><generator>Ghost 5.74</generator><lastBuildDate>Tue, 05 Dec 2023 07:14:47 GMT</lastBuildDate><atom:link href="http://localhost:2368/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Mastering Function Decorators in Python!]]></title><description><![CDATA[A Comprehensive Guide on how decorators work in Python and when to use them]]></description><link>http://localhost:2368/python-mastering-function-decorators-in-python/</link><guid isPermaLink="false">655f1bf2624c4c427cb29360</guid><category><![CDATA[Python Tutorial]]></category><category><![CDATA[Python]]></category><category><![CDATA[Python Working]]></category><dc:creator><![CDATA[Shekhar Verma]]></dc:creator><pubDate>Thu, 23 Nov 2023 09:31:30 GMT</pubDate><media:content url="http://localhost:2368/content/images/2023/11/cover_image.png" medium="image"/><content:encoded><![CDATA[<!--more-->
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:media="http://search.yahoo.com/mrss/"><channel><title><![CDATA[Shekhar Verma]]></title><description><![CDATA[Thoughts, stories and ideas.]]></description><link>http://localhost:2368/</link><image><url>http://localhost:2368/favicon.png</url><title>Shekhar Verma</title><link>http://localhost:2368/</link></image><generator>Ghost 5.74</generator><lastBuildDate>Thu, 25 Jan 2024 09:49:22 GMT</lastBuildDate><atom:link href="http://localhost:2368/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Integrating payment Webhooks with FastAPI in Python! - 1]]></title><description><![CDATA[How to create to your Webhook endpoint in FastAPI and save the data in a database.]]></description><link>http://localhost:2368/python-integrating-payment-webhooks-with-fastapi-in-python-1/</link><guid isPermaLink="false">65b22adfc1277412dc620e72</guid><category><![CDATA[FastAPI]]></category><category><![CDATA[Python]]></category><dc:creator><![CDATA[Shekhar Verma]]></dc:creator><pubDate>Thu, 25 Jan 2024 09:33:19 GMT</pubDate><media:content url="http://localhost:2368/content/images/2023/11/cover_image-1.jpg" medium="image"/><content:encoded><![CDATA[<!--more-->
+<img src="http://localhost:2368/content/images/2023/11/cover_image-1.jpg" alt="Integrating payment Webhooks with FastAPI in Python! - 1"><p>FastAPI is a modern web development framework used for creating RESTful APIs in Python.  It is easy to use and offers extremely fast performance and documentation support.</p>
+<p>In this tutorial, we are going to use Razorpay as our payment processing gateway to receive payment details through webhooks whenever a payment is made. In the next Post, we are going to see how to use and save this data using Pydantics and PostgreSQL database in Python.</p>
+<p>You are going to learn</p>
+<ul>
+<li>How to Create a Basic RESTful API using FastAPI</li>
+<li>How to Create your own webhook endpoints using FastAPI</li>
+<li>How to test and setup Razorpay webhooks</li>
+<li>How to Triggers webhook on your local machine</li>
+</ul>
+<p>But before diving in let&#x2019;s understand some basics.</p>
+<h2 id="what-are-webhooks">What are webhooks?</h2>
+<p>Webhooks are a way for applications or websites to send real-time data to other applications or services. They provide a mechanism for one application to notify another application when a specific event or action occurs. Instead of constantly polling or checking for updates, the receiving application provides a URL endpoint (known as a webhook) that the sending application can send data to whenever a particular event happens.</p>
+<p>The sending application makes an HTTP request to the webhook URL with the relevant data. In our case, the sending application will be Razorpay which will send the data whenever a payment event occurs.</p>
+<p>The receiving application (FastAPI application in our case), known as the webhook listener, receives the request and can then do whatever it wants with the data.</p>
+<p>Webhooks are commonly used for notifications and automation tasks. For example &#x2013; Generating a license key whenever a new customer makes a payment for a software product and adding the user details to a database.</p>
+<p>Webhooks are also sometimes referred to as Reverse APIs because APIs send the data when the client requests but webhooks send the data without request from the client.</p>
+<p><img src="http://localhost:2368/content/images/2023/11/API_VS_WEBHOOK.png" alt="Integrating payment Webhooks with FastAPI in Python! - 1" loading="lazy"></p>
+<!-- <img srcset="API_VS_WEBHOOK.png.jpg  1024w,
+      medium.jpg 640w,
+      small.jpg  320w"
+   sizes="(min-width: 36em) 33.3vw,
+      100vw"
+   src="API_VS_WEBHOOK.png"
+   alt="A rad wolf" /> -->
+<h2 id="fastapi">FastAPI</h2>
+<p>Let&#x2019;s install the FastAPI using the following command</p>
+<pre><code>pip install fastapi uvicorn[standard]
+</code></pre>
+<p>I have used Python 3.11 in this project. If you are using a different version then you might have to change the code a little bit.<br>
+You can Refer to the FastAPI documentation <a href="https://fastapi.tiangolo.com/?ref=localhost">here</a>.</p>
+<p>Now that we have installed fastAPI. Let&apos;s quickly create a &#x201C;hello world&#x201D; app using FastAPI. Copy and paste the following code in <em>main.py</em></p>
+<p><img src="http://localhost:2368/content/images/2023/11/image2.png" alt="Integrating payment Webhooks with FastAPI in Python! - 1" loading="lazy"></p>
+<pre><code class="language-py"># main.py
+
+from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get(&quot;/&quot;)
+async def root():
+    return {&quot;message&quot;: &quot;Hello World&quot;}
+
+@app.get(&quot;/hello/{user}&quot;)
+async def greeting(user):
+    return {&quot;Hello&quot;: user}
+
+</code></pre>
+<p><strong>Operation</strong> &#x2013; It refers to as one of the HTTP methods (GET, POST, PUT, DELETE). Normally we use</p>
+<ul>
+<li><strong>GET</strong> &#x2013; To read Data</li>
+<li><strong>POST</strong> &#x2013; To Send Data</li>
+<li><strong>PUT</strong> &#x2013; To Update Data</li>
+<li><strong>DELETE</strong> &#x2013; To Delete Data</li>
+</ul>
+<p>The @app.get(&quot;/&quot;) decorator tells FastAPI that the function right below is in charge of handling requests that go to:</p>
+<ul>
+<li>the path <strong>&#x201C;/&#x201D;</strong></li>
+<li>using a <strong>get</strong> operation</li>
+</ul>
+<p>That&#x2019;s why it is called Path Operation Decorator and the function below is called Path Operation Function.</p>
+<p>This is the fastAPI code but it cannot run directly as a normal Python script. We need to use a server to run this app. <a href="https://www.uvicorn.org/?ref=localhost">Uvicorn</a> is used as a server for FastAPI applications (you can use others as well but this is the most popular one).</p>
+<p>Run the following command and you will see such output.</p>
+<pre><code>uvicorn main:app --reload
+</code></pre>
+<p><img src="http://localhost:2368/content/images/2023/11/image3.png" alt="Integrating payment Webhooks with FastAPI in Python! - 1" loading="lazy"></p>
+<p>The <em>---reload</em> Flag at the end reloads the webserver when you make change to your source code. It saves a lot of time in development.</p>
+<p>Now go to <a href="http://127.0.0.1:8000/?ref=localhost">http://127.0.0.1:8000/</a> and you should see a similar output as seen in the figure below.</p>
+<p><img src="http://localhost:2368/content/images/2023/11/image4.jpg" alt="Integrating payment Webhooks with FastAPI in Python! - 1" loading="lazy"></p>
+<p><img src="http://localhost:2368/content/images/2023/11/image5.jpg" alt="Integrating payment Webhooks with FastAPI in Python! - 1" loading="lazy"></p>
+<h2 id="ngrok">NGROK</h2>
+<p>Till this point, everything is running on our local machine but to use the webhooks, we need to expose our localhost to the internet so that Razorpay can talk to our webhook.</p>
+<p>To do that we are going to use <a href="https://ngrok.com/?ref=localhost">NGROK</a>.</p>
+<p>Enter the following command after installing NGROK</p>
+<pre><code>ngrok http 8000
+</code></pre>
+<p>you will see a similar output (of course your link will be different).</p>
+<p><img src="http://localhost:2368/content/images/2023/11/image6.png" alt="Integrating payment Webhooks with FastAPI in Python! - 1" loading="lazy"></p>
+<p>Now if you go the link provided by the NGROK (xx.in.ngrok.i0) you will see the same message {&quot;msg&quot;: &quot;hello world&quot;}.</p>
+<p>NGROK basically acts as a tunnel to create a link between a temporary URL created by NGROK and your localhost.</p>
+<p><strong>Note:-</strong> In a free NGROK account you get a temporary URL VALID only for 2 hours and after 2 hours you have to regenerate the URL. (2 hours are more than enough to do all the development and testing on the local machine).</p>
+<p>We will use this URL generated by NGROK to receive our webhook.</p>
+<h2 id="setting-up-razorpay">Setting Up razorpay</h2>
+<p>Now that we have understood the basics, let&apos;s setup the payment webhook on Razorpay.</p>
+<p>Create a free test account on Razorpay and create a test payment page to test our webhook.<br>
+You can find the instructions to do that <a href="https://razorpay.com/docs/payments/payment-pages/create/?ref=localhost">Here</a>.</p>
+<p>Now it&apos;s time to add the webhook to our payment page.</p>
+<p>Go to developer options on the right side, then go to webhook and enter the details as follows.</p>
+<p><img src="http://localhost:2368/content/images/2023/11/image7.png" alt="Integrating payment Webhooks with FastAPI in Python! - 1" loading="lazy"></p>
+<p>This will trigger the webhook on our URL whenever you will receive payment.</p>
+<p><strong>Note</strong> &#x2013; Every time you will restart NGROK, you have to edit the &#x201C;Webhook URL&#x201D; because the URL changes. You can do this by going into your Razorpay account settings -&gt; Webhooks -&gt; selecting your webhook and choosing the edit option on the right side.</p>
+<h2 id="creating-an-endpoint-in-fastapi">Creating an Endpoint in FastAPI</h2>
+<p>Now that we have setup everything, lets create a basic endpoint to receive the data sent by the webhook.</p>
+<p>Look at the following code.</p>
+<pre><code class="language-python">from fastapi import FastAPI, Request, Response
+
+app = FastAPI()
+
+@app.get(&quot;/&quot;)
+async def root():
+    return {&quot;msg&quot;: &quot;hello world&quot;}
+
+@app.get(&quot;/hello/{user}&quot;)
+async def greeting(user):
+    return {&quot;Hello&quot;: user}
+
+@app.post(&quot;/webhook&quot;)
+async def receive_webhook(request: Request):
+    result = await request.json()
+    print(result)
+
+</code></pre>
+<p>Now that we have everything setup, let&apos;s run the uvicorn server once again and make a test payment using razorpay to see whether we receive the data on our FastAPI app.</p>
+<p><img src="http://localhost:2368/content/images/2023/11/image8.png" alt="Integrating payment Webhooks with FastAPI in Python! - 1" loading="lazy"></p>
+<p>(This is a testing page, you can make dummy payments)</p>
+<p>You can see that we have successfully received the payment data using Webhook. (I have hidden some sensitive information like my email ID and phone number).</p>
+<p>{{&lt; image src=&quot;image9.png&quot; alt=&quot;Razorpay test payment page&quot; &gt;}}</p>
+<p>In the next post we are going to see how to use Pydantics for data validation and PostgreSQL for storing the data in a database.</p>
+<p>Thankyou for reading &#x1F601;</p>
+<p>Please Follow me on twitter <a href="https://twitter.com/shekhu_verma?ref=localhost">@shekhu_verma</a> and feel free to connect if you have any doubts or need any help.</p>
+]]></content:encoded></item><item><title><![CDATA[Mastering Function Decorators in Python!]]></title><description><![CDATA[A Comprehensive Guide on how decorators work in Python and when to use them]]></description><link>http://localhost:2368/python-mastering-function-decorators-in-python/</link><guid isPermaLink="false">65b22adfc1277412dc620e75</guid><category><![CDATA[Python Tutorial]]></category><category><![CDATA[Python]]></category><category><![CDATA[Python Working]]></category><dc:creator><![CDATA[Shekhar Verma]]></dc:creator><pubDate>Thu, 10 Aug 2023 07:09:35 GMT</pubDate><media:content url="http://localhost:2368/content/images/2023/11/cover_image.png" medium="image"/><content:encoded><![CDATA[<!--more-->
 <img src="http://localhost:2368/content/images/2023/11/cover_image.png" alt="Mastering Function Decorators in Python!"><p>Decorators are an extremely useful feature in Python language that allows programmers to change the behaviour of a function without changing the function. Sounds strange? Well Don&apos;t worry because</p>
 <p>In this post, We are going to:-</p>
 <ol>
@@ -352,265 +472,7 @@ def read_root():
 <li><a href="https://shekharverma.com/posts/why_i_started_this_blog/?ref=localhost">Why I Started This Blog?</a></li>
 </ol>
 <p>Thank you for reading :smile:</p>
-]]></content:encoded></item><item><title><![CDATA[RaspberryPi PICO and PYUSB: Unlocking the Power of Custom USB Endpoints]]></title><description><![CDATA[Communicating between HOST and RP Pico using custom USB Endpoints and python!]]></description><link>http://localhost:2368/python-raspberrypi-pico-and-pyusb-unlocking-the-power-of-custom-usb-endpoints/</link><guid isPermaLink="false">655f1bf2624c4c427cb2935f</guid><category><![CDATA[python]]></category><category><![CDATA[pyusb]]></category><category><![CDATA[RP Pico]]></category><dc:creator><![CDATA[Shekhar Verma]]></dc:creator><pubDate>Thu, 23 Nov 2023 09:31:30 GMT</pubDate><media:content url="http://localhost:2368/content/images/2023/11/pico-rp2040.webp" medium="image"/><content:encoded><![CDATA[<h2 id="introduction">Introduction</h2>
-<img src="http://localhost:2368/content/images/2023/11/pico-rp2040.webp" alt="RaspberryPi PICO and PYUSB: Unlocking the Power of Custom USB Endpoints"><p>The RP2040 is a microcontroller developed by raspberry pi that has opened up a world of possibilities for DIY electronics enthusiasts. With its built-in USB 2.0 support, the RP2040 can function as a FULL SPEED (12Mbps)<br>
-Device as well as a LOW SPEED (1.5Mbps) and FULL SPEED host. In this blog post, we&apos;ll explore custom USB endpoints and how you can use them to create your own custom USB devices.</p>
-<p>Before diving deep into the topic, let me give you a brief idea what is USB and how it works. We all know what a USB connector looks like and we use at least one USB device daily. USB stands for Universal Serial Bus. It is a standard interface used to connect various devices to a computer or other host devices. It was developed in the mid-1990s, and it has since become one of the most widely used methods for connecting peripherals to computers.<br>
-USB allows devices to be connected to a computer without requiring specialized hardware or software. It is a plug-and-play interface, meaning that devices can be connected and disconnected from a computer without needing to restart the computer (Referred to as HOST). The HOST is responsible for all the communication and the device cannot communicate anything on its own.<br>
-When a device(For Ex Mouse, keyboard, Printer) gets connected to the HOST (Computer) the HOST communicates with the device to know its capabilities through Device Descriptors and configuration descriptors. Once the HOST knows what the device is, it starts communicating with it with the help of device drivers.</p>
-<h2 id="types-of-usb-transfer">Types of USB Transfer</h2>
-<ol>
-<li>Control Transfer - It is used to set and get USB configurations, set device address and other settings. All USB Devices must support Control Transfers.</li>
-<li>Isochronous Transfer - This transfer is used when the data bandwidth required is high and error correction is not important. For Ex- Streaming audio and video</li>
-<li>Interrupt Transfer - This transfer works by polling. It Polls the device periodically for any data. Keyboard and mouse use this transfer to report key strokes and movements.</li>
-<li>Bulk Transfer - This transfer provides reliable data transfer but the bandwidth is not guaranteed every time. This is typically used for printers and scanners etc.</li>
-</ol>
-<p>If you want to get more detail of how everything works I highly recommend you to check out <a href="https://www.usbmadesimple.co.uk/?ref=localhost">USB Made Simple</a>.</p>
-<h2 id="what-we-will-be-doing">What we will be doing?</h2>
-<p>In this blog I will be showing you how I created a composite USB device which can act as a USB keyboard and a custom Endpoint for communication and transferring data.</p>
-<p>The Device structure is shown below. Here we have 1 configuration and 2 interfaces for the device (RP pico in our case).</p>
-<ol>
-<li>Interface for a HID device (<strong>H</strong>uman <strong>I</strong>nterface <strong>D</strong>evice), in our case it will be a Keyboard.<br>
-Learn more about HID Devices <a href="https://en.wikipedia.org/wiki/USB_human_interface_device_class?ref=localhost">here</a>.</li>
-<li>Interface for our custom Bulk Transfer End points, which we will use to transfer data from host to device.(To Control the on Board LED which you will see later).</li>
-</ol>
-<pre><code class="language-text">Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               2.00
-  bDeviceClass            0 
-  bDeviceSubClass         0 
-  bDeviceProtocol         0 
-  bMaxPacketSize0        64
-  idVendor           0xcafe 
-  idProduct          0x4014 // Vendor ID and Product ID pair is used to identify a device to load suitable drivers.
-  bcdDevice            1.00
-  iManufacturer           1 Raspberry Pi 
-  iProduct                2 RP2040
-  iSerial                 3 001
-  bNumConfigurations      1 //our device only has one Configuration
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength       0x0039
-    bNumInterfaces          2 //2 Interfaces, one for the HID keyboard and other for our custom endpoints
-    bConfigurationValue     1
-    iConfiguration          4 
-    bmAttributes         0xa0
-      (Bus Powered)
-      Remote Wakeup
-    MaxPower              100mA //max current limit for our device USB2.0 supports uto 500mA
-    Interface Descriptor:  //This is the Interface for HID keyboard
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         3 Human Interface Device
-      bInterfaceSubClass      0 
-      bInterfaceProtocol      0 
-      iInterface              5 
-        HID Device Descriptor:
-          bLength                 9
-          bDescriptorType        33
-          bcdHID               1.11
-          bCountryCode            0 Not supported
-          bNumDescriptors         1
-          bDescriptorType        34 Report
-          wDescriptorLength     239
-         Report Descriptors: 
-           ** UNAVAILABLE **
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0010  1x 16 bytes
-        bInterval               5
-    Interface Descriptor: //This is the Interface for our custom endpoints (for contolling the LED in this example)
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        1
-      bAlternateSetting       0
-      bNumEndpoints           2
-      bInterfaceClass       255 Vendor Specific Class
-      bInterfaceSubClass      0 
-      bInterfaceProtocol      0 
-      iInterface              6 
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x03  EP 3 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x83  EP 3 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               0
-</code></pre>
-<p>I have used <strong>lsusb</strong> in ubuntu to see device descriptors. You can also use <a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/usbview?ref=localhost">USBView</a> on windows to do the same.</p>
-<p>You can think of interfaces as functions (or a group of functions) which a device performs and endpoints as a dedicated channel or stream of data between host and device. (This is just to give you an idea)<br>
-USB2.0 Support 16 Endpoints (From 0 to 15) out of which Endpoint 0 is reserved (For device configuration and setup). Each Endpoint can be configured to act as a IN or OUT endpoint.<br>
-The direction of Endpoints are always from the perspective of the HOST.<br>
-<strong>IN</strong> means Data Transfer from device to HOST<br>
-<strong>OUT</strong> means Data Transfer from HOST to device</p>
-<p>In our configuration we have used 1 IN endpoint for Keyboard (To send Keystrokes to the HOST), 1 IN Bulk endpoint to send data from device to HOST and 1 OUT Endpoint to send data from Host to device.</p>
-<p><img src="http://localhost:2368/content/images/2023/11/Infographic.png" alt="RaspberryPi PICO and PYUSB: Unlocking the Power of Custom USB Endpoints" loading="lazy"></p>
-<p>You can find the entire project code here <a href="https://github.com/shekhuverma/Pyusb-RP-PICO?ref=localhost">Pyusb-RP-PICO</a>.</p>
-<h2 id="results">Results</h2>
-<p><strong>1. Sending character &quot;A&quot; to the HOST</strong></p>
-<p>Pressing Button on the RaspberryPi Pico<br>
-<img src="http://localhost:2368/content/images/2023/11/Pressing_button.gif" alt="RaspberryPi PICO and PYUSB: Unlocking the Power of Custom USB Endpoints" title="Demo" loading="lazy"></p>
-<p><strong>Result</strong></p>
-<p><img src="http://localhost:2368/content/images/2023/11/typing_a.gif" alt="RaspberryPi PICO and PYUSB: Unlocking the Power of Custom USB Endpoints" loading="lazy"></p>
-<p><strong>2. Sending Data</strong></p>
-<p>The HOST Program is controlling the on Board LED.</p>
-<p><img src="http://localhost:2368/content/images/2023/11/led_blink.gif" alt="RaspberryPi PICO and PYUSB: Unlocking the Power of Custom USB Endpoints" loading="lazy"></p>
-<!-- Ubuntu 22.04.1 LTS -->
-<p>For Further Reading you can Refer these:-</p>
-<ol>
-<li><a href="https://github.com/shekhuverma/Pyusb-RP-PICO?ref=localhost">Pyusb-RP-PICO Github Repo</a></li>
-<li><a href="https://www.usbmadesimple.co.uk/?ref=localhost">USB Made Simple</a></li>
-<li><a href="https://www.raspberrypi.com/products/raspberry-pi-pico/?ref=localhost">Raspberry Pi Pico</a></li>
-<li><a href="http://janaxelson.com/usbc.htm?ref=localhost">USB Compelte 5th Edition</a></li>
-<li><a href="https://github.com/pyusb/pyusb?ref=localhost">pyusb</a></li>
-<li><a href="https://github.com/hathach/tinyusb?ref=localhost">tinyusb</a></li>
-</ol>
-<p>Thankyou for reading! &#x1F601;</p>
-]]></content:encoded></item><item><title><![CDATA[Integrating payment Webhooks with FastAPI in Python! - 1]]></title><description><![CDATA[How to create to your Webhook endpoint in FastAPI and save the data in a database.]]></description><link>http://localhost:2368/python-integrating-payment-webhooks-with-fastapi-in-python-1/</link><guid isPermaLink="false">655f1bf2624c4c427cb2935d</guid><category><![CDATA[FastAPI]]></category><category><![CDATA[Python]]></category><dc:creator><![CDATA[Shekhar Verma]]></dc:creator><pubDate>Thu, 23 Nov 2023 09:31:30 GMT</pubDate><media:content url="http://localhost:2368/content/images/2023/11/cover_image-1.jpg" medium="image"/><content:encoded><![CDATA[<!--more-->
-<img src="http://localhost:2368/content/images/2023/11/cover_image-1.jpg" alt="Integrating payment Webhooks with FastAPI in Python! - 1"><p>FastAPI is a modern web development framework used for creating RESTful APIs in Python.  It is easy to use and offers extremely fast performance and documentation support.</p>
-<p>In this tutorial, we are going to use Razorpay as our payment processing gateway to receive payment details through webhooks whenever a payment is made. In the next Post, we are going to see how to use and save this data using Pydantics and PostgreSQL database in Python.</p>
-<p>You are going to learn</p>
-<ul>
-<li>How to Create a Basic RESTful API using FastAPI</li>
-<li>How to Create your own webhook endpoints using FastAPI</li>
-<li>How to test and setup Razorpay webhooks</li>
-<li>How to Triggers webhook on your local machine</li>
-</ul>
-<p>But before diving in let&#x2019;s understand some basics.</p>
-<h2 id="what-are-webhooks">What are webhooks?</h2>
-<p>Webhooks are a way for applications or websites to send real-time data to other applications or services. They provide a mechanism for one application to notify another application when a specific event or action occurs. Instead of constantly polling or checking for updates, the receiving application provides a URL endpoint (known as a webhook) that the sending application can send data to whenever a particular event happens.</p>
-<p>The sending application makes an HTTP request to the webhook URL with the relevant data. In our case, the sending application will be Razorpay which will send the data whenever a payment event occurs.</p>
-<p>The receiving application (FastAPI application in our case), known as the webhook listener, receives the request and can then do whatever it wants with the data.</p>
-<p>Webhooks are commonly used for notifications and automation tasks. For example &#x2013; Generating a license key whenever a new customer makes a payment for a software product and adding the user details to a database.</p>
-<p>Webhooks are also sometimes referred to as Reverse APIs because APIs send the data when the client requests but webhooks send the data without request from the client.</p>
-<p><img src="http://localhost:2368/content/images/2023/11/API_VS_WEBHOOK.png" alt="Integrating payment Webhooks with FastAPI in Python! - 1" loading="lazy"></p>
-<!-- <img srcset="API_VS_WEBHOOK.png.jpg  1024w,
-      medium.jpg 640w,
-      small.jpg  320w"
-   sizes="(min-width: 36em) 33.3vw,
-      100vw"
-   src="API_VS_WEBHOOK.png"
-   alt="A rad wolf" /> -->
-<h2 id="fastapi">FastAPI</h2>
-<p>Let&#x2019;s install the FastAPI using the following command</p>
-<pre><code>pip install fastapi uvicorn[standard]
-</code></pre>
-<p>I have used Python 3.11 in this project. If you are using a different version then you might have to change the code a little bit.<br>
-You can Refer to the FastAPI documentation <a href="https://fastapi.tiangolo.com/?ref=localhost">here</a>.</p>
-<p>Now that we have installed fastAPI. Let&apos;s quickly create a &#x201C;hello world&#x201D; app using FastAPI. Copy and paste the following code in <em>main.py</em></p>
-<p><img src="http://localhost:2368/content/images/2023/11/image2.png" alt="Integrating payment Webhooks with FastAPI in Python! - 1" loading="lazy"></p>
-<pre><code class="language-py"># main.py
-
-from fastapi import FastAPI
-
-app = FastAPI()
-
-@app.get(&quot;/&quot;)
-async def root():
-    return {&quot;message&quot;: &quot;Hello World&quot;}
-
-@app.get(&quot;/hello/{user}&quot;)
-async def greeting(user):
-    return {&quot;Hello&quot;: user}
-
-</code></pre>
-<p><strong>Operation</strong> &#x2013; It refers to as one of the HTTP methods (GET, POST, PUT, DELETE). Normally we use</p>
-<ul>
-<li><strong>GET</strong> &#x2013; To read Data</li>
-<li><strong>POST</strong> &#x2013; To Send Data</li>
-<li><strong>PUT</strong> &#x2013; To Update Data</li>
-<li><strong>DELETE</strong> &#x2013; To Delete Data</li>
-</ul>
-<p>The @app.get(&quot;/&quot;) decorator tells FastAPI that the function right below is in charge of handling requests that go to:</p>
-<ul>
-<li>the path <strong>&#x201C;/&#x201D;</strong></li>
-<li>using a <strong>get</strong> operation</li>
-</ul>
-<p>That&#x2019;s why it is called Path Operation Decorator and the function below is called Path Operation Function.</p>
-<p>This is the fastAPI code but it cannot run directly as a normal Python script. We need to use a server to run this app. <a href="https://www.uvicorn.org/?ref=localhost">Uvicorn</a> is used as a server for FastAPI applications (you can use others as well but this is the most popular one).</p>
-<p>Run the following command and you will see such output.</p>
-<pre><code>uvicorn main:app --reload
-</code></pre>
-<p><img src="http://localhost:2368/content/images/2023/11/image3.png" alt="Integrating payment Webhooks with FastAPI in Python! - 1" loading="lazy"></p>
-<p>The <em>---reload</em> Flag at the end reloads the webserver when you make change to your source code. It saves a lot of time in development.</p>
-<p>Now go to <a href="http://127.0.0.1:8000/?ref=localhost">http://127.0.0.1:8000/</a> and you should see a similar output as seen in the figure below.</p>
-<p><img src="http://localhost:2368/content/images/2023/11/image4.jpg" alt="Integrating payment Webhooks with FastAPI in Python! - 1" loading="lazy"></p>
-<p><img src="http://localhost:2368/content/images/2023/11/image5.jpg" alt="Integrating payment Webhooks with FastAPI in Python! - 1" loading="lazy"></p>
-<h2 id="ngrok">NGROK</h2>
-<p>Till this point, everything is running on our local machine but to use the webhooks, we need to expose our localhost to the internet so that Razorpay can talk to our webhook.</p>
-<p>To do that we are going to use <a href="https://ngrok.com/?ref=localhost">NGROK</a>.</p>
-<p>Enter the following command after installing NGROK</p>
-<pre><code>ngrok http 8000
-</code></pre>
-<p>you will see a similar output (of course your link will be different).</p>
-<p><img src="http://localhost:2368/content/images/2023/11/image6.png" alt="Integrating payment Webhooks with FastAPI in Python! - 1" loading="lazy"></p>
-<p>Now if you go the link provided by the NGROK (xx.in.ngrok.i0) you will see the same message {&quot;msg&quot;: &quot;hello world&quot;}.</p>
-<p>NGROK basically acts as a tunnel to create a link between a temporary URL created by NGROK and your localhost.</p>
-<p><strong>Note:-</strong> In a free NGROK account you get a temporary URL VALID only for 2 hours and after 2 hours you have to regenerate the URL. (2 hours are more than enough to do all the development and testing on the local machine).</p>
-<p>We will use this URL generated by NGROK to receive our webhook.</p>
-<h2 id="setting-up-razorpay">Setting Up razorpay</h2>
-<p>Now that we have understood the basics, let&apos;s setup the payment webhook on Razorpay.</p>
-<p>Create a free test account on Razorpay and create a test payment page to test our webhook.<br>
-You can find the instructions to do that <a href="https://razorpay.com/docs/payments/payment-pages/create/?ref=localhost">Here</a>.</p>
-<p>Now it&apos;s time to add the webhook to our payment page.</p>
-<p>Go to developer options on the right side, then go to webhook and enter the details as follows.</p>
-<p><img src="http://localhost:2368/content/images/2023/11/image7.png" alt="Integrating payment Webhooks with FastAPI in Python! - 1" loading="lazy"></p>
-<p>This will trigger the webhook on our URL whenever you will receive payment.</p>
-<p><strong>Note</strong> &#x2013; Every time you will restart NGROK, you have to edit the &#x201C;Webhook URL&#x201D; because the URL changes. You can do this by going into your Razorpay account settings -&gt; Webhooks -&gt; selecting your webhook and choosing the edit option on the right side.</p>
-<h2 id="creating-an-endpoint-in-fastapi">Creating an Endpoint in FastAPI</h2>
-<p>Now that we have setup everything, lets create a basic endpoint to receive the data sent by the webhook.</p>
-<p>Look at the following code.</p>
-<pre><code class="language-python">from fastapi import FastAPI, Request, Response
-
-app = FastAPI()
-
-@app.get(&quot;/&quot;)
-async def root():
-    return {&quot;msg&quot;: &quot;hello world&quot;}
-
-@app.get(&quot;/hello/{user}&quot;)
-async def greeting(user):
-    return {&quot;Hello&quot;: user}
-
-@app.post(&quot;/webhook&quot;)
-async def receive_webhook(request: Request):
-    result = await request.json()
-    print(result)
-
-</code></pre>
-<p>Now that we have everything setup, let&apos;s run the uvicorn server once again and make a test payment using razorpay to see whether we receive the data on our FastAPI app.</p>
-<p><img src="http://localhost:2368/content/images/2023/11/image8.png" alt="Integrating payment Webhooks with FastAPI in Python! - 1" loading="lazy"></p>
-<p>(This is a testing page, you can make dummy payments)</p>
-<p>You can see that we have successfully received the payment data using Webhook. (I have hidden some sensitive information like my email ID and phone number).</p>
-<p>{{&lt; image src=&quot;image9.png&quot; alt=&quot;Razorpay test payment page&quot; &gt;}}</p>
-<p>In the next post we are going to see how to use Pydantics for data validation and PostgreSQL for storing the data in a database.</p>
-<p>Thankyou for reading &#x1F601;</p>
-<p>Please Follow me on twitter <a href="https://twitter.com/shekhu_verma?ref=localhost">@shekhu_verma</a> and feel free to connect if you have any doubts or need any help.</p>
-]]></content:encoded></item><item><title><![CDATA[Integrating payment Webhooks with FastAPI in Python! - 2]]></title><description><![CDATA[How to create to your Webhook endpoint in FastAPI and save the data in a database.]]></description><link>http://localhost:2368/python-python-integrating-payment-webhooks-with-fastapi-in-python-2/</link><guid isPermaLink="false">655f1bf2624c4c427cb2935e</guid><category><![CDATA[FastAPI]]></category><category><![CDATA[Python]]></category><dc:creator><![CDATA[Shekhar Verma]]></dc:creator><pubDate>Thu, 23 Nov 2023 09:31:30 GMT</pubDate><media:content url="http://localhost:2368/content/images/2023/11/cover_image.jpg" medium="image"/><content:encoded><![CDATA[<!--more-->
+]]></content:encoded></item><item><title><![CDATA[Integrating payment Webhooks with FastAPI in Python! - 2]]></title><description><![CDATA[How to create to your Webhook endpoint in FastAPI and save the data in a database.]]></description><link>http://localhost:2368/python-python-integrating-payment-webhooks-with-fastapi-in-python-2/</link><guid isPermaLink="false">65b22adfc1277412dc620e73</guid><category><![CDATA[FastAPI]]></category><category><![CDATA[Python]]></category><dc:creator><![CDATA[Shekhar Verma]]></dc:creator><pubDate>Fri, 21 Jul 2023 07:09:35 GMT</pubDate><media:content url="http://localhost:2368/content/images/2023/11/cover_image.jpg" medium="image"/><content:encoded><![CDATA[<!--more-->
 <img src="http://localhost:2368/content/images/2023/11/cover_image.jpg" alt="Integrating payment Webhooks with FastAPI in Python! - 2"><p>In the previous post, we saw how to create endpoints to receive webhooks using FastAPI in Python. We created a simple FastAPI App to receive the data whenever a payment is made on Razorpay. If you haven&#x2019;t read that post Check that out <a href="https://shekharverma.com/posts/payment_webhooks_fastapi_1/?ref=localhost">here</a> before proceeding further.</p>
 <p>In this post, we are going one step further. We are going to:-</p>
 <ol>
@@ -908,7 +770,212 @@ You can also test it with the payment page which we created in <a href="https://
 <p>If you found value in this, I&#x2019;d really appreciate it if you join us and write me back.<br>
 And don&#x2019;t forget to follow me on twitter <a href="https://twitter.com/shekhu_verma?ref=localhost">@shekhu_verma</a></p>
 <p>Thankyou for reading :smile:</p>
-]]></content:encoded></item><item><title><![CDATA[How I improved my python code Performance by 371%!]]></title><description><![CDATA[From 29.3s runtime to 6.3s without any external library!]]></description><link>http://localhost:2368/how-i-improved-my-python-code-performance-by-371--/</link><guid isPermaLink="false">655f1bf2624c4c427cb2935b</guid><category><![CDATA[python]]></category><category><![CDATA[python optimisation]]></category><dc:creator><![CDATA[Shekhar Verma]]></dc:creator><pubDate>Thu, 23 Nov 2023 09:31:30 GMT</pubDate><media:content url="http://localhost:2368/content/images/2023/11/python.jpg" medium="image"/><content:encoded><![CDATA[<h2 id="introduction">Introduction</h2>
+]]></content:encoded></item><item><title><![CDATA[Building Blocks for i.MXRT SoM Design]]></title><description><![CDATA[<h2 id="introduction">Introduction</h2>
+<p>The i.MX RT1160 MCU is designed for high-performance embedded applications that require advanced security features. It is the latest addition to NXP Semiconductor&apos;s i.MX RT series, which is renowned for its high processing speed, low power consumption, and flexibility.<br>
+It&#x2019;s dual core and</p>]]></description><link>http://localhost:2368/building-blocks-for-i-mxrt-som-design/</link><guid isPermaLink="false">65b22adfc1277412dc620e7b</guid><category><![CDATA[kicad]]></category><category><![CDATA[NXP]]></category><category><![CDATA[Pcb Designing]]></category><dc:creator><![CDATA[Shekhar Verma]]></dc:creator><pubDate>Sun, 23 Apr 2023 09:57:36 GMT</pubDate><media:content url="http://localhost:2368/content/images/2024/01/I.MX-RT-1160.png" medium="image"/><content:encoded><![CDATA[<h2 id="introduction">Introduction</h2>
+<img src="http://localhost:2368/content/images/2024/01/I.MX-RT-1160.png" alt="Building Blocks for i.MXRT SoM Design"><p>The i.MX RT1160 MCU is designed for high-performance embedded applications that require advanced security features. It is the latest addition to NXP Semiconductor&apos;s i.MX RT series, which is renowned for its high processing speed, low power consumption, and flexibility.<br>
+It&#x2019;s dual core and runs on the Arm&#xAE; Cortex&#xAE;-M7 core at 600 MHz and Arm Cortex-M4 at 240 MHz providing a perfect balance for computing power, media capabilities and real time Functionality.</p>
+<p>In this blog post, I will be sharing how I designed this SoM based on i.MX RT 1160<br>
+<strong>The SoM Features</strong></p>
+<ul>
+<li>i.MX RT 1160 MCU (MIMXRT1166DVM6A)</li>
+<li>128 Mb SD RAM</li>
+<li>128 Mb QSPI Flash</li>
+<li>4 Gb eMMC</li>
+<li>10/100 Mbps RMII Ethernet PHY</li>
+<li>2 Lane MIPI-DSI</li>
+<li>2 Lane MIPI-CSI</li>
+<li>2 X USB 2.0</li>
+<li>2 X I2C</li>
+<li>UART to USB Convertor</li>
+<li>Multiple GPIOs</li>
+<li>2 X 48 Pin Board-to-Board Connector</li>
+</ul>
+<p><img src="http://localhost:2368/content/images/2024/01/I.MX-RT-1160-1.png" alt="Building Blocks for i.MXRT SoM Design" loading="lazy"></p>
+<p><img src="http://localhost:2368/content/images/2024/01/i.MXRT-SoM_B.png" alt="Building Blocks for i.MXRT SoM Design" loading="lazy"></p>
+<p>Now that we know what we are going to build, let&apos;s start with section by section.<br>
+I have used Kicad 7 for this project.</p>
+<h2 id="1-power-section-and-pcb">1) Power Section and PCB</h2>
+<p>The SoM is powered by 5V input. A 5V to 3V3 LDO is used to generate votlage rail for MCU, SDRAM , Ethernet PHY and Flash.<br>
+A 3V3 to 1V8 LDO is used to generate voltage rail for the eMMC.<br>
+The i.MX RT 1160 series MCU comes with a integrated on-chip DC/DC buck convertor to generate two outputs, one output (VDD_DIG) typical 0.7 V~1.15 V, another output (VDD_ANA) typical 1.8 V and its switching frequency is about 1.5 MHz.These voltage rails are required for the working of MCU. Buck convertor requires an external 4.7uH Inductor (with the saturation current &gt; 1.5 A and ESR &lt; 0.1 &#x3A9;) for operation. Here I have chosen a shielded inductor for better EMI/EMC performance.</p>
+<p>DCDC has two application modes, which is configured by the DCDC_MODE pin</p>
+<p><strong>Application mode 0</strong> : DCDC_IN is connected to 3.3V, and DCDC output is 1.8V and 1.0V. DCDC_MODE pin is tied to ground.<br>
+<strong>Application mode 1</strong> : DCDC_MODE pin is tied to 1.8V. DCDC_IN and DCDC_ANA are both supplied by the external 1.8V power supply, and DCDC outputs DCDC_DIG (1.0V).<br>
+You can also use an external PMIC as suggested by NXP but in our case we are going with the built-in route to save money and space on board. (and offcourse to keep things simple :sweat_smile:). In this case I tied the DCDC_MODE pin to ground to use application mode 0.<br>
+DCDC_PSWITCH should delay 1 ms with respect to DCDC_IN to guarantee that DCDC_IN is stable before the DC/DC starts up. I have used a RC having time constant of 6.6ms.</p>
+<p>The PCB is a 6 layer impedance controlled board. I decided to make in <strong>50mm x 50mm size</strong> because its fabrication cost is lowest on JLC PCB.<br>
+To give you a real world idea here is the difference between the PCB fabrication quotes.</p>
+<p><img src="http://localhost:2368/content/images/2024/01/image3.png" alt="Building Blocks for i.MXRT SoM Design" loading="lazy"><br>
+<img src="http://localhost:2368/content/images/2024/01/image4.png" alt="Building Blocks for i.MXRT SoM Design" loading="lazy"></p>
+<p>When using the on chip DC/DC Convertor we need to place a lot of capacitors directly under the BGA package as recommend by the NXP in their Hardware Design guide (You can find all the links at the end on this post).</p>
+<p><img src="http://localhost:2368/content/images/2024/01/image5.png" alt="Building Blocks for i.MXRT SoM Design" loading="lazy"><br>
+All the capacitors on the back (closely clustered) are decoupling capacitors required for various power rails and signals.</p>
+<h2 id="2-sd-ram-and-nor-flash">2) SD RAM and NOR FLASH</h2>
+<p>It is interfaced by SEMC (Smart Extensible memory controller, as NXP likes to call it). It Supports SDRAM, NOR Flash, NAND Flash, SRAM and 8080 Display interface. In this case I have chosen a 128 Mb SDRAM that comes in a TFBGA package.<br>
+i.MX RT 1160 uses a external flash to store the code as most modern MCUs and is interfaced by QSPI Protocol.</p>
+<p>All the signals are routed on top and bottom layer with controlled impedance and length tuning.</p>
+<h2 id="3-ethernet-phy">3) Ethernet PHY</h2>
+<p>PHY means Physical Layer, It is a transceiver component for transmitting and receiving data or Ethernet frames.The physical layer specifies the types of electrical signals, signaling rates, media and connector types, and network topologies.<br>
+i.MX RT 11600 do not come with a in-built ethernet PHY and we have to connect an external PHY to the MCU. Here I have used DP83826 from TI as its easily available and very reasonably priced. Initially I was going with a gigabit PHY but most of the PHYs were either out of stock or costing close to the price of the MCU so I settled with a 10/100M PHY.<br>
+I have used Reduced MII for interfacing with the PHY as it requires less no. of pins and used the reference of MIMXRT1160-EVK Board. The PHY is placed close to the Board-to-Board connector to reduce the trace lengths of MDI differential pairs. When changing layers Grounding Vias are placed to shorten the signal return path and improve signal integrity.</p>
+<h2 id="4-reset-controller-ic">4) Reset Controller IC.</h2>
+<p>Although this is optional but NXP recommends to use one for safe operation. The internal DC/DC Convertor resets when Vin drops below 2.6V, so we have chosen a reset controller which resets the MCU before DC/DC convertor resets. The Reset IC also keeps the MCU in reset state till Vin get stable and Vin rises above 2.7V. All of this ensures safe power on and power off sequence.</p>
+<h2 id="5-emmc">5) eMMC</h2>
+<p>I have used a 4Gb eMMC as bulk storage option. It is interfaced using uSDDHC (Ultra Secured Digital Host Controller), yes another fancy long name :dizzy_face: . I have used the eMMC in 4 bit mode because other pins were multiplexed with the NOR flash when using the eMMC in 8 bit mode. As we are using NOR flash as our primary boot option I didn&#x2019;t want to change the pin mapping. An external 1V8  LDO was used to provide the power to the IC.</p>
+<p>These were the major peripherals I exposed in this SoM along with other common things such as oscillators, strapping resistors, etc.<br>
+There is still some scope left to route More GPIOs and expose more peripherals. I will update this post when i will do that.</p>
+<p>You can find the entire project code here <a href="https://github.com/shekhuverma/i.MX-RT-1160-SoM?ref=localhost">i.MX-RT-1160-SoM</a>.<br>
+You can follow me on twitter <a href="https://twitter.com/shekhu_verma?ref=localhost">@shekhu_verma</a></p>
+<p>For Further Reading you can Refer these:-<br>
+{{&lt; lb &gt;}}<br>
+(You might have to signup to download these)</p>
+<ol>
+<li><a href="https://cache.nxp.com/secured/assets/documents/en/reference-manual/IMXRT1160RM.pdf?fileExt=.pdf&amp;ref=localhost">i.MX RT1160 Processor Reference Manual</a></li>
+<li><a href="https://www.nxp.com/docs/en/application-note/AN13202.pdf?ref=localhost">EMC Design Recommendation on i.MXRT Series</a></li>
+<li><a href="https://cache.nxp.com/secured/assets/documents/en/user-guide/MIMXRT1170HDUG.pdf?fileExt=.pdf&amp;ref=localhost">Hardware Development Guide for the MIMXRT1160/1170 Processor</a></li>
+<li><a href="https://cache.nxp.com/secured/assets/downloads/en/design-support/MIMXRT1160-EVK-DESIGN-FILES.zip?fileExt=.zip&amp;ref=localhost">MIMXRT1160-EVK Design files</a></li>
+</ol>
+<p>Thank You for reading! :smile:</p>
+]]></content:encoded></item><item><title><![CDATA[RaspberryPi PICO and PYUSB: Unlocking the Power of Custom USB Endpoints]]></title><description><![CDATA[Communicating between HOST and RP Pico using custom USB Endpoints and python!]]></description><link>http://localhost:2368/python-raspberrypi-pico-and-pyusb-unlocking-the-power-of-custom-usb-endpoints/</link><guid isPermaLink="false">65b22adfc1277412dc620e74</guid><category><![CDATA[python]]></category><category><![CDATA[pyusb]]></category><category><![CDATA[RP Pico]]></category><dc:creator><![CDATA[Shekhar Verma]]></dc:creator><pubDate>Tue, 07 Mar 2023 09:57:36 GMT</pubDate><media:content url="http://localhost:2368/content/images/2023/11/pico-rp2040.webp" medium="image"/><content:encoded><![CDATA[<h2 id="introduction">Introduction</h2>
+<img src="http://localhost:2368/content/images/2023/11/pico-rp2040.webp" alt="RaspberryPi PICO and PYUSB: Unlocking the Power of Custom USB Endpoints"><p>The RP2040 is a microcontroller developed by raspberry pi that has opened up a world of possibilities for DIY electronics enthusiasts. With its built-in USB 2.0 support, the RP2040 can function as a FULL SPEED (12Mbps)<br>
+Device as well as a LOW SPEED (1.5Mbps) and FULL SPEED host. In this blog post, we&apos;ll explore custom USB endpoints and how you can use them to create your own custom USB devices.</p>
+<p>Before diving deep into the topic, let me give you a brief idea what is USB and how it works. We all know what a USB connector looks like and we use at least one USB device daily. USB stands for Universal Serial Bus. It is a standard interface used to connect various devices to a computer or other host devices. It was developed in the mid-1990s, and it has since become one of the most widely used methods for connecting peripherals to computers.<br>
+USB allows devices to be connected to a computer without requiring specialized hardware or software. It is a plug-and-play interface, meaning that devices can be connected and disconnected from a computer without needing to restart the computer (Referred to as HOST). The HOST is responsible for all the communication and the device cannot communicate anything on its own.<br>
+When a device(For Ex Mouse, keyboard, Printer) gets connected to the HOST (Computer) the HOST communicates with the device to know its capabilities through Device Descriptors and configuration descriptors. Once the HOST knows what the device is, it starts communicating with it with the help of device drivers.</p>
+<h2 id="types-of-usb-transfer">Types of USB Transfer</h2>
+<ol>
+<li>Control Transfer - It is used to set and get USB configurations, set device address and other settings. All USB Devices must support Control Transfers.</li>
+<li>Isochronous Transfer - This transfer is used when the data bandwidth required is high and error correction is not important. For Ex- Streaming audio and video</li>
+<li>Interrupt Transfer - This transfer works by polling. It Polls the device periodically for any data. Keyboard and mouse use this transfer to report key strokes and movements.</li>
+<li>Bulk Transfer - This transfer provides reliable data transfer but the bandwidth is not guaranteed every time. This is typically used for printers and scanners etc.</li>
+</ol>
+<p>If you want to get more detail of how everything works I highly recommend you to check out <a href="https://www.usbmadesimple.co.uk/?ref=localhost">USB Made Simple</a>.</p>
+<h2 id="what-we-will-be-doing">What we will be doing?</h2>
+<p>In this blog I will be showing you how I created a composite USB device which can act as a USB keyboard and a custom Endpoint for communication and transferring data.</p>
+<p>The Device structure is shown below. Here we have 1 configuration and 2 interfaces for the device (RP pico in our case).</p>
+<ol>
+<li>Interface for a HID device (<strong>H</strong>uman <strong>I</strong>nterface <strong>D</strong>evice), in our case it will be a Keyboard.<br>
+Learn more about HID Devices <a href="https://en.wikipedia.org/wiki/USB_human_interface_device_class?ref=localhost">here</a>.</li>
+<li>Interface for our custom Bulk Transfer End points, which we will use to transfer data from host to device.(To Control the on Board LED which you will see later).</li>
+</ol>
+<pre><code class="language-text">Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               2.00
+  bDeviceClass            0 
+  bDeviceSubClass         0 
+  bDeviceProtocol         0 
+  bMaxPacketSize0        64
+  idVendor           0xcafe 
+  idProduct          0x4014 // Vendor ID and Product ID pair is used to identify a device to load suitable drivers.
+  bcdDevice            1.00
+  iManufacturer           1 Raspberry Pi 
+  iProduct                2 RP2040
+  iSerial                 3 001
+  bNumConfigurations      1 //our device only has one Configuration
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength       0x0039
+    bNumInterfaces          2 //2 Interfaces, one for the HID keyboard and other for our custom endpoints
+    bConfigurationValue     1
+    iConfiguration          4 
+    bmAttributes         0xa0
+      (Bus Powered)
+      Remote Wakeup
+    MaxPower              100mA //max current limit for our device USB2.0 supports uto 500mA
+    Interface Descriptor:  //This is the Interface for HID keyboard
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           1
+      bInterfaceClass         3 Human Interface Device
+      bInterfaceSubClass      0 
+      bInterfaceProtocol      0 
+      iInterface              5 
+        HID Device Descriptor:
+          bLength                 9
+          bDescriptorType        33
+          bcdHID               1.11
+          bCountryCode            0 Not supported
+          bNumDescriptors         1
+          bDescriptorType        34 Report
+          wDescriptorLength     239
+         Report Descriptors: 
+           ** UNAVAILABLE **
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0010  1x 16 bytes
+        bInterval               5
+    Interface Descriptor: //This is the Interface for our custom endpoints (for contolling the LED in this example)
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        1
+      bAlternateSetting       0
+      bNumEndpoints           2
+      bInterfaceClass       255 Vendor Specific Class
+      bInterfaceSubClass      0 
+      bInterfaceProtocol      0 
+      iInterface              6 
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x03  EP 3 OUT
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x83  EP 3 IN
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               0
+</code></pre>
+<p>I have used <strong>lsusb</strong> in ubuntu to see device descriptors. You can also use <a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/usbview?ref=localhost">USBView</a> on windows to do the same.</p>
+<p>You can think of interfaces as functions (or a group of functions) which a device performs and endpoints as a dedicated channel or stream of data between host and device. (This is just to give you an idea)<br>
+USB2.0 Support 16 Endpoints (From 0 to 15) out of which Endpoint 0 is reserved (For device configuration and setup). Each Endpoint can be configured to act as a IN or OUT endpoint.<br>
+The direction of Endpoints are always from the perspective of the HOST.<br>
+<strong>IN</strong> means Data Transfer from device to HOST<br>
+<strong>OUT</strong> means Data Transfer from HOST to device</p>
+<p>In our configuration we have used 1 IN endpoint for Keyboard (To send Keystrokes to the HOST), 1 IN Bulk endpoint to send data from device to HOST and 1 OUT Endpoint to send data from Host to device.</p>
+<p><img src="http://localhost:2368/content/images/2023/11/Infographic.png" alt="RaspberryPi PICO and PYUSB: Unlocking the Power of Custom USB Endpoints" loading="lazy"></p>
+<p>You can find the entire project code here <a href="https://github.com/shekhuverma/Pyusb-RP-PICO?ref=localhost">Pyusb-RP-PICO</a>.</p>
+<h2 id="results">Results</h2>
+<p><strong>1. Sending character &quot;A&quot; to the HOST</strong></p>
+<p>Pressing Button on the RaspberryPi Pico<br>
+<img src="http://localhost:2368/content/images/2023/11/Pressing_button.gif" alt="RaspberryPi PICO and PYUSB: Unlocking the Power of Custom USB Endpoints" title="Demo" loading="lazy"></p>
+<p><strong>Result</strong></p>
+<p><img src="http://localhost:2368/content/images/2023/11/typing_a.gif" alt="RaspberryPi PICO and PYUSB: Unlocking the Power of Custom USB Endpoints" loading="lazy"></p>
+<p><strong>2. Sending Data</strong></p>
+<p>The HOST Program is controlling the on Board LED.</p>
+<p><img src="http://localhost:2368/content/images/2023/11/led_blink.gif" alt="RaspberryPi PICO and PYUSB: Unlocking the Power of Custom USB Endpoints" loading="lazy"></p>
+<!-- Ubuntu 22.04.1 LTS -->
+<p>For Further Reading you can Refer these:-</p>
+<ol>
+<li><a href="https://github.com/shekhuverma/Pyusb-RP-PICO?ref=localhost">Pyusb-RP-PICO Github Repo</a></li>
+<li><a href="https://www.usbmadesimple.co.uk/?ref=localhost">USB Made Simple</a></li>
+<li><a href="https://www.raspberrypi.com/products/raspberry-pi-pico/?ref=localhost">Raspberry Pi Pico</a></li>
+<li><a href="http://janaxelson.com/usbc.htm?ref=localhost">USB Compelte 5th Edition</a></li>
+<li><a href="https://github.com/pyusb/pyusb?ref=localhost">pyusb</a></li>
+<li><a href="https://github.com/hathach/tinyusb?ref=localhost">tinyusb</a></li>
+</ol>
+<p>Thankyou for reading! &#x1F601;</p>
+]]></content:encoded></item><item><title><![CDATA[How I improved my python code Performance by 371%!]]></title><description><![CDATA[From 29.3s runtime to 6.3s without any external library!]]></description><link>http://localhost:2368/how-i-improved-my-python-code-performance-by-371--/</link><guid isPermaLink="false">65b22adfc1277412dc620e70</guid><category><![CDATA[python]]></category><category><![CDATA[python optimisation]]></category><dc:creator><![CDATA[Shekhar Verma]]></dc:creator><pubDate>Sun, 29 Jan 2023 15:34:44 GMT</pubDate><media:content url="http://localhost:2368/content/images/2023/11/python.jpg" medium="image"/><content:encoded><![CDATA[<h2 id="introduction">Introduction</h2>
 <img src="http://localhost:2368/content/images/2023/11/python.jpg" alt="How I improved my python code Performance by 371%!"><p>Before getting started let&#x2019;s discuss the problem statement in hand. I wanted to analyze some data stored in a text file. Each row contained four numerical values demlimited by a space, for a total of 46.66M rows. The size of the file is around 1.11 GB, and I am attaching a small screen shot of the data below so that you get the idea what it looks like.</p>
 <p><img src="http://localhost:2368/content/images/2023/11/data.png" alt="How I improved my python code Performance by 371%!" loading="lazy"></p>
 <p>I needed to extract only the rows for a given value of the third column (3100.10 in the image above)<br>
@@ -1074,9 +1141,37 @@ This is almost <strong>4.7 times increase in performance</strong> from where we 
 </table>
 <p><img src="http://localhost:2368/content/images/2023/11/comparison_chart.jpeg" alt="How I improved my python code Performance by 371%!" loading="lazy"></p>
 <p>Thankyou for reading! :smile:</p>
+]]></content:encoded></item><item><title><![CDATA[6 Thinking Hats!]]></title><description><![CDATA[A simple technique for brain stroming and improved decission making]]></description><link>http://localhost:2368/6-thinking-hats-/</link><guid isPermaLink="false">65b22adfc1277412dc620e77</guid><dc:creator><![CDATA[Shekhar Verma]]></dc:creator><pubDate>Sat, 14 Jan 2023 15:34:44 GMT</pubDate><media:content url="http://localhost:2368/content/images/2023/11/six_thinking_hats.png" medium="image"/><content:encoded><![CDATA[<h2 id="introduction">Introduction</h2>
+<img src="http://localhost:2368/content/images/2023/11/six_thinking_hats.png" alt="6 Thinking Hats!"><p>Hello there, The &quot;6 Thinking Hats&quot; technique is a powerful tool/technique for improving decision-making and problem-solving in group settings. Developed by Dr. Edward de Bono, the technique encourages individuals to approach a problem or decision from multiple perspectives, rather than getting stuck in one way of thinking. I came across this technique in a podcast where the speaker was telling how they use this technique at their company. I read more about it and thought of sharing this with you all.</p>
+<p>The six hats represent the 6 thinking patterns each aiming at looking at the problem with a different pair of glasses. Here I will share the technique along with an example to help you understand this concept better. It&apos;s mostly used in a group setting but you can apply this technique to almost anything. If it&#x2019;s done as a team activity, each person (or a sub group of people if the team is big) is given a hat and they are asked to <strong>think as per the HAT.</strong><br>
+Let&#x2019;s take an example and understand how to use it.<br>
+Suppose you want to open a fast-food store and let&#x2019;s see the how this approach goes.<br>
+<strong>The six hats are:</strong></p>
+<ol>
+<li>
+<p><strong>Blue Hat &quot;the Conductor&apos;s Hat&quot;</strong>: The Blue Hat represents strategic and big-picture thinking. It is used to evaluate the overall goals and objectives, and to determine the best course of action. Do you want to open a single store or you want to build the next fast-food giant? Having a clear big picture in mind helps to make the baby steps needed to achieve your big goals.</p>
+</li>
+<li>
+<p><strong>White Hat &#x201C;The Factual Hat&#x201D;</strong>: The White Hat represents objective, neutral thinking. It is used to gather information, identify facts and data, and analyze the problem. What will be your specialty? What will be your menu? What should be your pricing?</p>
+</li>
+<li>
+<p><strong>Red Hat &#x201C;&quot;the Hat for the Heart&quot;&#x201D;</strong>: The Red Hat represents emotions and intuition. It allows individuals to express their feelings and gut instincts about a problem or decision. What if people don&#x2019;t like the taste of your food? What will your family and friends think if you fail?</p>
+</li>
+<li>
+<p><strong>Black Hat &#x201C;The Judge&apos;s Hat&#x201D;</strong>: The Black Hat represents critical and negative thinking. It is used to identify potential problems and risks, and to evaluate the feasibility of different options. Do you have existing competition nearby your premise? What if your plan fails, do you have an emergency fund?</p>
+</li>
+<li>
+<p><strong>Yellow Hat &#x201C;the Optimist&apos;s Hat&#x201D;</strong>: The Yellow Hat represents positive and constructive thinking. It is used to generate ideas, identify opportunities, and evaluate the benefits of different options. How can your outlet standout from others? Why people will choose your brand over other restaurants?</p>
+</li>
+<li>
+<p><strong>Green Hat &#x201C;the Creative Hat&#x201D;</strong>: The Green Hat represents creative and innovative thinking. It is used to generate new ideas and explore different possibilities. What interesting offers you can give to attract more sales? Can you start any food challenges ?</p>
+</li>
+</ol>
+<p>By using the 6 Thinking Hats technique, individuals and groups are able to approach a problem or decision from multiple perspectives, rather than getting stuck in one way of thinking. It allows for more comprehensive problem solving and decision making, and can increase the chances of a successful outcome.<br>
+Thankyou For Reading :smile:</p>
 ]]></content:encoded></item><item><title><![CDATA[MIPI-DSI on i.MXRT 1060/1070]]></title><description><![CDATA[<p>Hello everyone, this is going to be a 2 part series in which I am going to explain you about MIPI-DSI, how it works and how to use it on NXP i.MXRT1160/1170 crossover MCUs.</p>
 <h2 id="what-is-mipi-dsi">What is MIPI-DSI?</h2>
-<p><strong>MIPI DSI</strong> (<strong>M</strong>obile <strong>I</strong>ndustry <strong>P</strong>rocessor <strong>I</strong>nterface <strong>D</strong></p>]]></description><link>http://localhost:2368/mipi-dsi-on-i-mxrt-1060-1070/</link><guid isPermaLink="false">655f1bf2624c4c427cb2935c</guid><category><![CDATA[MIPI-DSI]]></category><category><![CDATA[i.MXRT]]></category><category><![CDATA[LCD]]></category><dc:creator><![CDATA[Shekhar Verma]]></dc:creator><pubDate>Thu, 23 Nov 2023 09:31:30 GMT</pubDate><content:encoded><![CDATA[<p>Hello everyone, this is going to be a 2 part series in which I am going to explain you about MIPI-DSI, how it works and how to use it on NXP i.MXRT1160/1170 crossover MCUs.</p>
+<p><strong>MIPI DSI</strong> (<strong>M</strong>obile <strong>I</strong>ndustry <strong>P</strong>rocessor <strong>I</strong>nterface <strong>D</strong></p>]]></description><link>http://localhost:2368/mipi-dsi-on-i-mxrt-1060-1070/</link><guid isPermaLink="false">65b22adfc1277412dc620e71</guid><category><![CDATA[MIPI-DSI]]></category><category><![CDATA[i.MXRT]]></category><category><![CDATA[LCD]]></category><dc:creator><![CDATA[Shekhar Verma]]></dc:creator><pubDate>Tue, 03 Jan 2023 12:23:52 GMT</pubDate><content:encoded><![CDATA[<p>Hello everyone, this is going to be a 2 part series in which I am going to explain you about MIPI-DSI, how it works and how to use it on NXP i.MXRT1160/1170 crossover MCUs.</p>
 <h2 id="what-is-mipi-dsi">What is MIPI-DSI?</h2>
 <p><strong>MIPI DSI</strong> (<strong>M</strong>obile <strong>I</strong>ndustry <strong>P</strong>rocessor <strong>I</strong>nterface <strong>D</strong>isplay <strong>S</strong>erial <strong>I</strong>nterface) is a high-speed interface standard for connecting a display to a mobile device or embedded system. Developed by the MIPI Alliance (Formed by ARM, Nokia, ST and TI in 2003, Intel, Motorola, Samsung and Philips joined within a year), a global organization dedicated to developing interface specifications for mobile and mobile-influenced industries. MIPI DSI is designed to support the display needs of smartphones, tablets, laptops, and other portable devices. DSI only specifies a set of commands, data serialisation and packetization schemes. This packet-based approach allows for a more efficient use of bandwidth and power, making it ideal for mobile applications. The use of MIPI DSI is not limited to mobile devices, it has also been adopted in embedded systems, such as Internet of Things (IoT) devices, automotive displays and industrial displays. It <strong>does not</strong> define any actual electrical specifications, physical layer or a connector standard (like HDMI and USB). The actual electrical specifications are defined by a PHY (short for physical layer). NXP i.MXRT 1160 uses D-PHY , here D stands for Roman numerical 500 and it denotes the maximum speed of 500 mbits/sec per lane. There are other types of PHYs as well such as C-PHY, A-PHY, etc.<br>
 Now that we have some idea about what is DSI, let&#x2019;s discuss about what it&#x2019;s not.</p>
@@ -1172,35 +1267,7 @@ Thankyou For Reading! :smile:</p>
 <li><a href="https://www.nxp.com/docs/en/application-note/AN12940.pdf?ref=localhost">AN12940</a></li>
 <li><a href="https://studfile.net/preview/1645839/?ref=localhost">https://studfile.net/preview/1645839/</a></li>
 </ol>
-]]></content:encoded></item><item><title><![CDATA[6 Thinking Hats!]]></title><description><![CDATA[A simple technique for brain stroming and improved decission making]]></description><link>http://localhost:2368/6-thinking-hats-/</link><guid isPermaLink="false">655f1bf2624c4c427cb29362</guid><dc:creator><![CDATA[Shekhar Verma]]></dc:creator><pubDate>Thu, 23 Nov 2023 09:31:30 GMT</pubDate><media:content url="http://localhost:2368/content/images/2023/11/six_thinking_hats.png" medium="image"/><content:encoded><![CDATA[<h2 id="introduction">Introduction</h2>
-<img src="http://localhost:2368/content/images/2023/11/six_thinking_hats.png" alt="6 Thinking Hats!"><p>Hello there, The &quot;6 Thinking Hats&quot; technique is a powerful tool/technique for improving decision-making and problem-solving in group settings. Developed by Dr. Edward de Bono, the technique encourages individuals to approach a problem or decision from multiple perspectives, rather than getting stuck in one way of thinking. I came across this technique in a podcast where the speaker was telling how they use this technique at their company. I read more about it and thought of sharing this with you all.</p>
-<p>The six hats represent the 6 thinking patterns each aiming at looking at the problem with a different pair of glasses. Here I will share the technique along with an example to help you understand this concept better. It&apos;s mostly used in a group setting but you can apply this technique to almost anything. If it&#x2019;s done as a team activity, each person (or a sub group of people if the team is big) is given a hat and they are asked to <strong>think as per the HAT.</strong><br>
-Let&#x2019;s take an example and understand how to use it.<br>
-Suppose you want to open a fast-food store and let&#x2019;s see the how this approach goes.<br>
-<strong>The six hats are:</strong></p>
-<ol>
-<li>
-<p><strong>Blue Hat &quot;the Conductor&apos;s Hat&quot;</strong>: The Blue Hat represents strategic and big-picture thinking. It is used to evaluate the overall goals and objectives, and to determine the best course of action. Do you want to open a single store or you want to build the next fast-food giant? Having a clear big picture in mind helps to make the baby steps needed to achieve your big goals.</p>
-</li>
-<li>
-<p><strong>White Hat &#x201C;The Factual Hat&#x201D;</strong>: The White Hat represents objective, neutral thinking. It is used to gather information, identify facts and data, and analyze the problem. What will be your specialty? What will be your menu? What should be your pricing?</p>
-</li>
-<li>
-<p><strong>Red Hat &#x201C;&quot;the Hat for the Heart&quot;&#x201D;</strong>: The Red Hat represents emotions and intuition. It allows individuals to express their feelings and gut instincts about a problem or decision. What if people don&#x2019;t like the taste of your food? What will your family and friends think if you fail?</p>
-</li>
-<li>
-<p><strong>Black Hat &#x201C;The Judge&apos;s Hat&#x201D;</strong>: The Black Hat represents critical and negative thinking. It is used to identify potential problems and risks, and to evaluate the feasibility of different options. Do you have existing competition nearby your premise? What if your plan fails, do you have an emergency fund?</p>
-</li>
-<li>
-<p><strong>Yellow Hat &#x201C;the Optimist&apos;s Hat&#x201D;</strong>: The Yellow Hat represents positive and constructive thinking. It is used to generate ideas, identify opportunities, and evaluate the benefits of different options. How can your outlet standout from others? Why people will choose your brand over other restaurants?</p>
-</li>
-<li>
-<p><strong>Green Hat &#x201C;the Creative Hat&#x201D;</strong>: The Green Hat represents creative and innovative thinking. It is used to generate new ideas and explore different possibilities. What interesting offers you can give to attract more sales? Can you start any food challenges ?</p>
-</li>
-</ol>
-<p>By using the 6 Thinking Hats technique, individuals and groups are able to approach a problem or decision from multiple perspectives, rather than getting stuck in one way of thinking. It allows for more comprehensive problem solving and decision making, and can increase the chances of a successful outcome.<br>
-Thankyou For Reading :smile:</p>
-]]></content:encoded></item><item><title><![CDATA[Why I Started this blog?]]></title><description><![CDATA[Why I Started a blog and why you should too!]]></description><link>http://localhost:2368/why-i-started-this-blog-/</link><guid isPermaLink="false">655f1bf2624c4c427cb29361</guid><dc:creator><![CDATA[Shekhar Verma]]></dc:creator><pubDate>Thu, 23 Nov 2023 09:31:30 GMT</pubDate><media:content url="http://localhost:2368/content/images/2023/11/why.jpg" medium="image"/><content:encoded><![CDATA[<hr>
+]]></content:encoded></item><item><title><![CDATA[Why I Started this blog?]]></title><description><![CDATA[Why I Started a blog and why you should too!]]></description><link>http://localhost:2368/why-i-started-this-blog-/</link><guid isPermaLink="false">65b22adfc1277412dc620e76</guid><dc:creator><![CDATA[Shekhar Verma]]></dc:creator><pubDate>Mon, 12 Dec 2022 05:39:48 GMT</pubDate><media:content url="http://localhost:2368/content/images/2023/11/why.jpg" medium="image"/><content:encoded><![CDATA[<hr>
 <h2 id="who-am-i">Who am I?</h2>
 <img src="http://localhost:2368/content/images/2023/11/why.jpg" alt="Why I Started this blog?"><p>Before starting with the &quot;why&quot; let me take a moment to introduce myself, My name is Shekhar Verma (yes, you guessed it right :laughing:).<br>
 I am an Electronics Engineer and I love to learn new things, create stuff and tinker with existing ones. I am currently Working as an Engineer<br>
